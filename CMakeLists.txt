@@ -26,5 +26,8 @@ target_include_directories(SecureMemory PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include/
         )
 
+# add test subdir
+add_subdirectory(test)
+
 
 
