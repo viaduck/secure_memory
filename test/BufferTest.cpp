@@ -74,7 +74,7 @@ TEST_F(BufferTest, Swap) {
     a.append("abcdefghijkl", 12);
     b.append("0123456789", 10);
 
-    libcom::swap(a, b);
+    secure_memory::swap(a, b);
     EXPECT_EQ(10u, a.size());
     EXPECT_EQ(12u, b.size());
     EXPECT_ARRAY_EQ(const uint8_t, "0123456789", a.const_data(), 10);

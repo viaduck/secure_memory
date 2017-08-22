@@ -1,5 +1,5 @@
-#ifndef LIBCOM_DEVNULL_H
-#define LIBCOM_DEVNULL_H
+#ifndef SECUREMEMORY_DEVNULL_H
+#define SECUREMEMORY_DEVNULL_H
 
 #include "Buffer.h"
 
@@ -23,4 +23,4 @@ public:
 };
 
 
-#endif //LIBCOM_DEVNULL_H
+#endif //SECUREMEMORY_DEVNULL_H

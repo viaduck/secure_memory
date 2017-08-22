@@ -21,7 +21,7 @@ inline size_t strlen_s(const char *str) {
     return strlen(str);
 }
 
-namespace libcom {
+namespace secure_memory {
     /**
      * Shortcut template to eliminate need for "using std::swap" before every swap call.
      * @param one

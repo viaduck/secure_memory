@@ -286,10 +286,10 @@ public:
      * @param two
      */
     friend void swap(Buffer &one, Buffer &two) {
-        libcom::swap(one.mData, two.mData);
-        libcom::swap(one.mReserved, two.mReserved);
-        libcom::swap(one.mUsed, two.mUsed);
-        libcom::swap(one.mOffset, two.mOffset);
+        secure_memory::swap(one.mData, two.mData);
+        secure_memory::swap(one.mReserved, two.mReserved);
+        secure_memory::swap(one.mUsed, two.mUsed);
+        secure_memory::swap(one.mOffset, two.mOffset);
     }
 
 private:
