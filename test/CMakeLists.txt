@@ -1,5 +1,4 @@
-# find system gtest
-find_package(GTest)
+include(FindOrBuildGTest)
 
 if (GTEST_FOUND)
     # glob test files
