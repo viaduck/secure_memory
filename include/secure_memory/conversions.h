@@ -20,6 +20,10 @@ inline uint8_t ntoh_uint8_t(uint8_t v) {
     // a byte is a byte, no need to swap
     return v;
 }
+inline int8_t ntoh_int8_t(int8_t v) {
+    // a byte is a byte, no need to swap
+    return v;
+}
 
 /**
  * Converts an uint16_t from network to host byte order
@@ -27,6 +31,9 @@ inline uint8_t ntoh_uint8_t(uint8_t v) {
  * @return v in host byte order
  */
 inline uint16_t ntoh_uint16_t(uint16_t v) {
+    return be16toh(v);
+}
+inline int16_t ntoh_int16_t(int16_t v) {
     return be16toh(v);
 }
 
@@ -38,6 +45,9 @@ inline uint16_t ntoh_uint16_t(uint16_t v) {
 inline uint32_t ntoh_uint32_t(uint32_t v) {
     return be32toh(v);
 }
+inline int32_t ntoh_int32_t(int32_t v) {
+    return be32toh(v);
+}
 
 /**
  * Converts an uint64_t from network to host byte order
@@ -45,6 +55,9 @@ inline uint32_t ntoh_uint32_t(uint32_t v) {
  * @return v in host byte order
  */
 inline uint64_t ntoh_uint64_t(uint64_t v) {
+    return be64toh(v);
+}
+inline int64_t ntoh_int64_t(int64_t v) {
     return be64toh(v);
 }
 
@@ -57,6 +70,10 @@ inline uint8_t hton_uint8_t(uint8_t v) {
     // a byte is a byte, no need to swap
     return v;
 }
+inline int8_t hton_int8_t(int8_t v) {
+    // a byte is a byte, no need to swap
+    return v;
+}
 
 /**
  * Converts an uint16_t from host to network byte order
@@ -64,6 +81,9 @@ inline uint8_t hton_uint8_t(uint8_t v) {
  * @return v in network byte order
  */
 inline uint16_t hton_uint16_t(uint16_t v) {
+    return htobe16(v);
+}
+inline int16_t hton_int16_t(int16_t v) {
     return htobe16(v);
 }
 
@@ -75,6 +95,9 @@ inline uint16_t hton_uint16_t(uint16_t v) {
 inline uint32_t hton_uint32_t(uint32_t v) {
     return htobe32(v);
 }
+inline int32_t hton_int32_t(int32_t v) {
+    return htobe32(v);
+}
 
 /**
  * Converts an uint64_t from host to network byte order
@@ -82,6 +105,9 @@ inline uint32_t hton_uint32_t(uint32_t v) {
  * @return v in network byte order
  */
 inline uint64_t hton_uint64_t(uint64_t v) {
+    return htobe64(v);
+}
+inline int64_t hton_int64_t(int64_t v) {
     return htobe64(v);
 }
 
