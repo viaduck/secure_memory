@@ -22,6 +22,7 @@
 #endif
 
 #if defined(__linux__) || defined(__CYGWIN__)
+#	include <byteswap.h>
 #	include <endian.h>
 
 #ifdef __ANDROID__
