@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
 project(SecureMemory)
 
+# add own modules
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
+
 # user settable settings
 set(OPTION_SECURE_UNIQUEPTR ON CACHE BOOL "Erase memory on unique ptr deletion")
 if (OPTION_SECURE_UNIQUEPTR)
