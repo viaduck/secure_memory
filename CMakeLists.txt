@@ -29,6 +29,10 @@ target_include_directories(SecureMemory PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include/
         )
 
+if (WIN32)
+    target_link_libraries(SecureMemory ws2_32)
+endif()
+
 # add test subdir
 add_subdirectory(test)
 
