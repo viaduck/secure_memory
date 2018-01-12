@@ -2,24 +2,46 @@
 
 #include <secure_memory/conversions.h>
 
-TEST_F(ConversionTest, Bswap) {
-    EXPECT_EQ(0x12u, bswap(static_cast<uint8_t>(0x12)));
-    EXPECT_EQ(0x3412u, bswap(static_cast<uint16_t>(0x1234)));
-    EXPECT_EQ(0x78563412u, bswap(static_cast<uint32_t>(0x12345678)));
-    EXPECT_EQ(0x5634129078563412u, bswap(static_cast<uint64_t>(0x1234567890123456)));
+/*
+ * Note:
+ * big endian does not swap bytes, therefore needs special no-op tests
+ */
+
+TEST_F(ConversionTest, Hton) {
+    #if __BYTE_ORDER == LITTLE_ENDIAN
+        EXPECT_EQ(0x12u, hton(static_cast<uint8_t>(0x12)));
+        EXPECT_EQ(0x3412u, hton(static_cast<uint16_t>(0x1234)));
+        EXPECT_EQ(0x78563412u, hton(static_cast<uint32_t>(0x12345678)));
+        EXPECT_EQ(0x5634129078563412u, hton(static_cast<uint64_t>(0x1234567890123456)));
+    #else
+        EXPECT_EQ(0x12u, hton(static_cast<uint8_t>(0x12)));
+        EXPECT_EQ(0x1234u, hton(static_cast<uint16_t>(0x1234)));
+        EXPECT_EQ(0x12345678u, hton(static_cast<uint32_t>(0x12345678)));
+        EXPECT_EQ(0x1234567890123456u, hton(static_cast<uint64_t>(0x1234567890123456)));
+    #endif
 }
 
-TEST_F(ConversionTest, BswapFloat) {
-    EXPECT_NE(1.23f, bswap(1.23f));
-    EXPECT_EQ(1.23f, bswap(bswap(1.23f)));
+TEST_F(ConversionTest, HtonFloat) {
+    #if __BYTE_ORDER == LITTLE_ENDIAN
+        EXPECT_NE(1.23f, hton(1.23f));
+        EXPECT_EQ(1.23f, hton(hton(1.23f)));
+    #else
+        EXPECT_EQ(1.23f, hton(1.23f));
+        EXPECT_EQ(1.23f, hton(hton(1.23f)));
+    #endif
 }
 
-TEST_F(ConversionTest, BswapDouble) {
-    EXPECT_NE(3.14159, bswap(3.14159));
-    EXPECT_EQ(3.14159, bswap(bswap(3.14159)));
+TEST_F(ConversionTest, HtonDouble) {
+    #if __BYTE_ORDER == LITTLE_ENDIAN
+        EXPECT_NE(3.14159, hton(3.14159));
+        EXPECT_EQ(3.14159, hton(hton(3.14159)));
+    #else
+        EXPECT_EQ(3.14159, hton(3.14159));
+        EXPECT_EQ(3.14159, hton(hton(3.14159)));
+    #endif
 }
 
-TEST_F(ConversionTest, BswapComplex) {
+TEST_F(ConversionTest, HtonComplex) {
     struct ComplexStruct {
         float a;
         int b;
@@ -40,10 +62,19 @@ TEST_F(ConversionTest, BswapComplex) {
     ComplexStruct b = {-finf, 5, -dinf};
     ComplexStruct c = {1.234f, 5, 3.14159};
 
-    EXPECT_NE(a, bswap(a));
-    EXPECT_EQ(a, bswap(bswap(a)));
-    EXPECT_NE(b, bswap(b));
-    EXPECT_EQ(b, bswap(bswap(b)));
-    EXPECT_NE(c, bswap(c));
-    EXPECT_EQ(c, bswap(bswap(c)));
+    #if __BYTE_ORDER == LITTLE_ENDIAN
+        EXPECT_NE(a, hton(a));
+        EXPECT_EQ(a, hton(hton(a)));
+        EXPECT_NE(b, hton(b));
+        EXPECT_EQ(b, hton(hton(b)));
+        EXPECT_NE(c, hton(c));
+        EXPECT_EQ(c, hton(hton(c)));
+    #else
+        EXPECT_EQ(a, hton(a));
+        EXPECT_EQ(a, hton(hton(a)));
+        EXPECT_EQ(b, hton(b));
+        EXPECT_EQ(b, hton(hton(b)));
+        EXPECT_EQ(c, hton(c));
+        EXPECT_EQ(c, hton(hton(c)));
+    #endif
 }
