@@ -29,6 +29,8 @@ if (GTEST_FOUND)
 
     # set up test target
     add_executable(SecureMemory_Test ${SECUREMEMORY_SOURCES} ${SECUREMEMORY_HEADERS} ${TEST_FILES_SOURCES} ${TEST_FILES_HEADERS})
-    target_link_libraries(SecureMemory_Test ${GTEST_BOTH_LIBRARIES} pthread SecureMemory)
-
+    target_link_libraries(SecureMemory_Test ${GTEST_BOTH_LIBRARIES} SecureMemory)
+    if (NOT ANDROID)
+        target_link_libraries(SecureMemory_Test pthread)
+    endif()
 endif()
