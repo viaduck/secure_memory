@@ -43,7 +43,7 @@ public:
      * Creates a Buffer object with an internal buffer of reserved size.
      * @param reserved Initial buffer capacity in bytes. Defaults to 512
      */
-    Buffer(uint32_t reserved = 512);
+    explicit Buffer(uint32_t reserved = 512);
 
     /**
      * Creates a Buffer object from another Buffer (deep-copy).
@@ -96,7 +96,7 @@ public:
     /**
      * Writes a bunch of data to the Buffer starting at specified offset; overwriting existing data and increasing
      * Buffer's capacity if necessary.
-     * @param data Data pointer (if nullptr: only allocate (if neceassary) and use memory)
+     * @param data Data pointer (if nullptr: only allocate (if necessary) and use memory)
      * @param len Length of data (in bytes)
      * @param offset Starting position
      * @return Range containing information about added range within Buffer
@@ -147,14 +147,14 @@ public:
      * @param by True if newCapacity is relative to size() or false if not (standard)
      * @return New capacity
      */
-    uint32_t increase(const uint32_t newCapacity, const bool by = false);
+    uint32_t increase(uint32_t newCapacity, bool by = false);
     /**
      * Overloaded variant of increase(const uint32_t newCapacity) which initializes newly allocated memory to value.
      * @param value Byte value of newly allocated (free) memory
      * @param by True if newCapacity is relative to size() or false if not (standard)
      * @return New capacity
      */
-    uint32_t increase(const uint32_t newCapacity, const uint8_t value, const bool by = false);
+    uint32_t increase(uint32_t newCapacity, uint8_t value, bool by = false);
 
     /**
      * Adds padded bytes with specified value to the Buffer (starting at offset), so that Buffer is newSize long. Padded
@@ -163,7 +163,7 @@ public:
      * @param size Number of bytes to add
      * @param value Byte value of padded bytes
      */
-    void padd(const uint32_t offset, const uint32_t size, const uint8_t value);
+    void padd(uint32_t offset, uint32_t size, uint8_t value);
 
     /**
      * Overload variant of padd(const uint32_t offset, const uint32_t size, const uint8_t value) which starts at
@@ -171,7 +171,7 @@ public:
      * @param newSize Buffer's new size
      * @param value Byte value of padded bytes
      */
-    void padd(const uint32_t newSize, const uint8_t value);
+    void padd(uint32_t newSize, uint8_t value);
 
     /**
      * Overload variant of padd(const uint32_t offset, const uint32_t size, const uint8_t value) which accepts a Range.
@@ -232,7 +232,7 @@ public:
 
     /**
      * Clears the buffer. This resets used and consumed bytes counts.
-     * @param shred Wether to overwrite all managed memory (slows down operation)
+     * @param shred Whether to overwrite all managed memory (slows down operation)
      */
     virtual void clear(bool shred = false);
 
