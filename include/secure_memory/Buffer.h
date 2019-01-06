@@ -30,15 +30,8 @@ class Buffer;
 typedef Range<Buffer> BufferRange;
 typedef Range<const Buffer> BufferRangeConst;
 
-class DevNull;
-
-class Buffer : public Serializable{
+class Buffer : public Serializable {
 public:
-    /**
-     * Static allocated DevNull Buffer object for all your garbage!
-     */
-    static DevNull DEV_NULL;
-
     /**
      * Creates a Buffer object with an internal buffer of reserved size.
      * @param reserved Initial buffer capacity in bytes. Defaults to 512
@@ -317,8 +310,5 @@ private:
     uint32_t mUsed = 0;
     uint32_t mOffset = 0;
 };
-
-// fix IDE quick fix tooltip, there is no other reason in doing this besides that
-#include "DevNull.h"
 
 #endif //SECUREMEMORY_BUFFER_H
