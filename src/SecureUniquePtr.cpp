@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2019 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -19,14 +19,20 @@
 
 #include "secure_memory/SecureUniquePtr.h"
 
-volatile void *SecureUniquePtrPRNG::shred(volatile void *dst, size_t len) {
+#if defined(__GNUC__) || !defined(__clang__)
+#define SM_SUP_ASM_BARRIER 1
+#endif
+
+void SecureUniquePtrPRNG::shred(void *dst, size_t len) {
     if (dst == nullptr)
-        return dst;
+        return;
 
-    volatile char *buf;
-
-    for (buf = (volatile char *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
-    return dst;
+#ifdef SM_SUP_ASM_BARRIER
+    for (char *buf = (char *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
+    __asm__ __volatile__("" ::"r"(dst): "memory");
+#else
+    for (volatile char *buf = (volatile char *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
+#endif
 }
 
 thread_local std::minstd_rand SecureUniquePtrPRNG::mRandGenerator(std::random_device().operator()());

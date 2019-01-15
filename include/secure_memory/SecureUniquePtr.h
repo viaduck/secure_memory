@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2019 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -30,7 +30,7 @@ public:
     /**
      * memset(..) with will not be optimized away by compilers (hopefully) used for memory erasing.
      */
-    static volatile void *shred(volatile void *dst, size_t len);
+    static void shred(void *dst, size_t len);
 
 private:
     /**
