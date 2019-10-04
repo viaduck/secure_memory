@@ -825,3 +825,36 @@ TEST_F(BufferTest, End) {
     EXPECT_EQ(0u, end.size());
     EXPECT_TRUE(end.isResizable());
 }
+
+TEST_F(BufferTest, Policy) {
+    Buffer b1, b2, b3;
+    b3.padd(32, 0);
+    BufferRange range1(b1), range2(b2, 0, BufferRange::OBJ_END), range3(b3, 0, b3.size());
+
+    // range 1 can be resized
+    EXPECT_TRUE(BufferRange::applyPolicy(range1, 32));
+    EXPECT_EQ(32u, b1.size());
+    // range2 can't
+    EXPECT_FALSE(BufferRange::applyPolicy(range2, 32));
+    EXPECT_EQ(0u, b2.size());
+    // range3 is not resizable, but has enough size already
+    EXPECT_TRUE(BufferRange::applyPolicy(range3, 32));
+    EXPECT_EQ(32u, b3.size());
+    // try resizing non-resizable range3 more than b3
+    EXPECT_FALSE(BufferRange::applyPolicy(range3, 33));
+}
+
+TEST_F(BufferTest, SizeChange) {
+    Buffer b;
+    b.append("abcdefghijklmnop", 16);
+    BufferRange full(b);
+    EXPECT_EQ(0u, full.offset());
+    EXPECT_EQ(16u, full.size());
+    EXPECT_TRUE(full.isResizable());
+
+    // append, size should change
+    b.append("asdf", 4);
+    EXPECT_EQ(0u, full.offset());
+    EXPECT_EQ(20u, full.size());
+    EXPECT_TRUE(full.isResizable());
+}

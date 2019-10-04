@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2019 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -43,7 +43,6 @@ public:
 
 template <typename T>
 class Range {
-
 public:
     /**
      * Creates a Range (offset, size) within an object.
@@ -56,10 +55,10 @@ public:
             mObj(obj), mSize(size), mOffset(offset), mResizable(resizable) { }
 
     /**
-     * Overload constructor with offset = 0 and size = obj.size()
+     * Overload constructor with offset = 0 and size = OBJ_END
      * @param obj T
      */
-    Range(T &obj) : Range(obj, 0, obj.size(), true) { }
+    Range(T &obj) : Range(obj, 0, OBJ_END, true) { }
 
     /**
      * Compares two Ranges
@@ -67,13 +66,13 @@ public:
      * @return True if content within the ranges is the same
      */
     bool operator==(const Range &other) const {
-        if (other.mSize != mSize)       // size is different -> they are truly not equal
+        if (other.size() != size())       // size is different -> they are truly not equal
             return false;
 
-        const char *cthis = static_cast<const char *>(mObj.const_data(mOffset)),
-                *cother = static_cast<const char *>(other.mObj.const_data(other.mOffset));
+        const char *cthis = static_cast<const char *>(mObj.const_data(offset())),
+                *cother = static_cast<const char *>(other.mObj.const_data(other.offset()));
 
-        return comparisonHelper(cthis, cother, mSize);
+        return comparisonHelper(cthis, cother, size());
     }
 
     /**
@@ -106,7 +105,7 @@ public:
      * @return size
      */
     inline uint32_t size() const {
-        return mSize;
+        return (mSize == OBJ_END ? mObj.size() - offset() : mSize);
     }
     /**
      * Setter: size
@@ -167,11 +166,11 @@ public:
      * @return this
      */
     Range &operator+=(uint32_t addition) {
-        if (addition > mSize)
-            addition = mSize;
+        if (addition > size())
+            addition = size();
 
         mOffset += addition;
-        mSize -= addition;
+        mSize -= (mSize != OBJ_END ? addition : 0);
         return *this;
     }
 
@@ -195,6 +194,9 @@ public:
         dest.object().padd(dest);
         return true;
     }
+
+    // constant for size sticking to the end
+    const static uint32_t OBJ_END = std::numeric_limits<uint32_t>::max();
 
 private:
     T &mObj;
