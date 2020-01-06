@@ -29,6 +29,15 @@ if (GTEST_FOUND)
 
     # set up test target
     add_executable(SecureMemory_Test ${SECUREMEMORY_SOURCES} ${SECUREMEMORY_HEADERS} ${TEST_FILES_SOURCES} ${TEST_FILES_HEADERS})
+
+    # add sanitization compile options
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID)
+        message(STATUS "Sanitization compile options enabled.")
+        target_compile_options(SecureMemory_Test PRIVATE -ftrapv -fsanitize=integer -fno-sanitize-recover=integer)
+        target_link_options(SecureMemory_Test PRIVATE -fsanitize=integer)
+    else()
+        message(STATUS "Sanitization compile options NOT enabled.")
+    endif()
     target_link_libraries(SecureMemory_Test ${GTEST_BOTH_LIBRARIES} SecureMemory)
     if (NOT ANDROID)
         target_link_libraries(SecureMemory_Test pthread)
