@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2020 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -110,9 +110,9 @@ TEST_F(BufferTest, UnsafeDataAccess) {
 
     // offset too big, must return pointer after last index (next 10 indices must be 0xFF)
     EXPECT_ARRAY_EQ(const uint8_t, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", a.const_data(12), 10);
-    EXPECT_ARRAY_EQ(const uint8_t, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", a.const_data(-1), 10);
+    EXPECT_ARRAY_EQ(const uint8_t, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", a.const_data((uint32_t)-1), 10);
     EXPECT_ARRAY_EQ(const uint8_t, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", a.data(12), 10);
-    EXPECT_ARRAY_EQ(const uint8_t, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", a.data(-1), 10);
+    EXPECT_ARRAY_EQ(const uint8_t, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", a.data((uint32_t)-1), 10);
 }
 
 TEST_F(BufferTest, ConstDataRange) {

@@ -38,7 +38,7 @@ namespace std {
      */
     template<>
     struct hash<const BufferRangeConst> {
-        std::size_t operator()(const BufferRangeConst &k) const {
+        __attribute__((no_sanitize("integer"))) std::size_t operator()(const BufferRangeConst &k) const {
             using std::size_t;
             using std::hash;
             using std::string;

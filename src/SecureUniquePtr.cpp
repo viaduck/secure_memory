@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 The ViaDuck Project
+ * Copyright (C) 2015-2020 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -28,10 +28,10 @@ void SecureUniquePtrPRNG::shred(void *dst, size_t len) {
         return;
 
 #ifdef SM_SUP_ASM_BARRIER
-    for (char *buf = (char *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
+    for (uint8_t *buf = (uint8_t *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
     __asm__ __volatile__("" ::"r"(dst): "memory");
 #else
-    for (volatile char *buf = (volatile char *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
+    for (volatile uint8_t *buf = (volatile uint8_t *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
 #endif
 }
 
