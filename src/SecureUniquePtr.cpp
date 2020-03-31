@@ -35,5 +35,5 @@ void SecureUniquePtrPRNG::shred(void *dst, size_t len) {
 #endif
 }
 
-thread_local std::minstd_rand SecureUniquePtrPRNG::mRandGenerator(std::random_device().operator()());
+thread_local std::mt19937 SecureUniquePtrPRNG::mRandGenerator(std::random_device().operator()());
 thread_local std::uniform_int_distribution<uint8_t> SecureUniquePtrPRNG::mRandDistribution(std::numeric_limits<uint8_t>::min(),std::numeric_limits<uint8_t>::max());

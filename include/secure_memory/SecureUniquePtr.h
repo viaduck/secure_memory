@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 The ViaDuck Project
+ * Copyright (C) 2015-2020 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -40,7 +40,7 @@ private:
      *
      * Thread safety is accomplished by thread_local keyword.
      */
-    static thread_local std::minstd_rand mRandGenerator;
+    static thread_local std::mt19937 mRandGenerator;
 
     /**
      * @see SecureUniquePtr::mRandGenerator
