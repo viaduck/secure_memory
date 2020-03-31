@@ -858,3 +858,16 @@ TEST_F(BufferTest, SizeChange) {
     EXPECT_EQ(20u, full.size());
     EXPECT_TRUE(full.isResizable());
 }
+
+TEST_F(BufferTest, IntegerOverflow) {
+    uint32_t max = std::numeric_limits<uint32_t>::max();
+    Buffer b(max);
+    b.write(nullptr, max, 1);
+    EXPECT_EQ(max, b.size());
+
+    b.use(2);
+    EXPECT_EQ(max, b.size());
+
+    b.use(max);
+    EXPECT_EQ(max, b.size());
+}
