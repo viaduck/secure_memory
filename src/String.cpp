@@ -132,7 +132,7 @@ bool String::toInt(uint8_t base, uint32_t &result) const {
             else
                 diff = val - alphabet[0];
 
-            r += make_si(static_cast<uint32_t>(diff*pow(base, exp)));
+            r += make_si<uint32_t>(diff*pow(base, exp));
             exp++;
         }
     }
@@ -146,7 +146,7 @@ String String::toHex(const uint8_t *data, uint32_t size) {
         return String();
 
     constexpr const static char *alphabet = "0123456789abcdef";
-    constexpr const uint8_t sixteen = static_cast<uint8_t>(16);
+    constexpr const uint8_t sixteen = 16;
 
     SecureUniquePtr<char[]> final(make_si(size) * 2_si32 + 1_si32);
     final()[make_si(size) * 2_si32] = '\0';
@@ -155,13 +155,11 @@ String String::toHex(const uint8_t *data, uint32_t size) {
     uint8_t div, rem;
 
     for (uint32_t i = 0; i < size; ++i) {
-        uint32_t i2 = make_si(i) * 2_si32;
-
         rem = data[i] % sixteen;
-        final()[i2 + 1_si32] = alphabet[rem];
+        final()[make_si(i) * 2_si32 + 1_si32] = alphabet[rem];
 
         div = data[i] / sixteen;
-        final()[i2] = alphabet[div];
+        final()[make_si(i) * 2_si32] = alphabet[div];
     }
     s += final().get();
 

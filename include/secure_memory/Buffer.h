@@ -50,7 +50,7 @@ public:
      * Move constructor. Other Buffer will be left in default state.
      * @param buffer Other buffer's rvalue reference
      */
-    Buffer(Buffer &&buffer);
+    Buffer(Buffer &&buffer) noexcept;
 
     /**
      * Destructor
@@ -203,14 +203,14 @@ public:
      * @param offset The byte to start the Range from
      * @param size Range's size
      */
-    const BufferRangeConst const_data(uint32_t offset, uint32_t size) const;
+    BufferRangeConst const_data(uint32_t offset, uint32_t size) const;
 
     /**
      * Create a resizable Range pointing to Buffer's end. Size is 0.
      * @return Constructed Range
      */
     BufferRange end() {
-        return BufferRange(*this, size(), 0, true);
+        return {*this, size(), 0, true};
     }
 
     /**
@@ -256,7 +256,7 @@ public:
      * @return *this
      * @see Buffer::Buffer(Buffer &&)
      */
-    virtual Buffer &operator=(Buffer &&other);
+    virtual Buffer &operator=(Buffer &&other) noexcept;
 
     /**
      * Serializes the Buffer to given Buffer.

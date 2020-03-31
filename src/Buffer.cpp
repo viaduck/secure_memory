@@ -29,7 +29,7 @@ Buffer::Buffer(const Buffer &buffer) : mData(buffer.mReserved), mReserved(buffer
     memcpy(mData().get(), &buffer.mData()[buffer.mOffset], mUsed);
 }
 
-Buffer::Buffer(Buffer &&buffer) : mData(std::move(buffer.mData)), mReserved(buffer.mReserved), mUsed(buffer.mUsed), mOffset(buffer.mOffset) {
+Buffer::Buffer(Buffer &&buffer) noexcept : mData(std::move(buffer.mData)), mReserved(buffer.mReserved), mUsed(buffer.mUsed), mOffset(buffer.mOffset) {
     buffer.mReserved = 0;
     buffer.mUsed = 0;
     buffer.mOffset = 0;
@@ -95,9 +95,10 @@ void Buffer::reset(uint32_t offsetDiff) {
 }
 
 uint32_t Buffer::increase(const uint32_t newCapacity, const bool by) {
-    uint32_t capa = newCapacity;
+    auto capa = make_si(newCapacity);
     if (by)
-        capa += make_si(size());
+        capa += mUsed;
+
     // no need to increase, since buffer is as big as requested
     if (capa <= mReserved - mOffset)
         return mReserved - mOffset;
@@ -125,7 +126,7 @@ uint32_t Buffer::increase(const uint32_t newCapacity, const uint8_t value, const
 }
 
 void Buffer::padd(const uint32_t offset, const uint32_t size, const uint8_t value) {
-    increase(make_si(offset) + make_si(size), make_si(value));
+    increase(make_si(offset) + make_si(size), value);
     // do not overwrite existing bytes with supplied value (bytes with offset < mUsed). New bytes have been set to value
     // already by increase(..)
 
@@ -159,12 +160,14 @@ const void *Buffer::const_data(uint32_t p) const {
     return const_cast<const uint8_t *>(&mData()[mOffset + make_si(p)]);
 }
 
-const BufferRangeConst Buffer::const_data(uint32_t offset, uint32_t size) const {
-    if (offset > this->size())
-        offset = this->size();
-    if (make_si(offset) + make_si(size) > this->size())
-        size = make_si(this->size()) - make_si(offset);
-    return BufferRangeConst(*this, offset, size);
+BufferRangeConst Buffer::const_data(uint32_t offset, uint32_t sz) const {
+    if (offset > size())
+        offset = size();
+
+    if (make_si(offset) + make_si(sz) > size())
+        sz = make_si(size()) - make_si(offset);
+
+    return {*this, offset, sz};
 }
 
 void Buffer::use(uint32_t n) {
@@ -193,7 +196,7 @@ bool Buffer::operator==(const Buffer &other) const {
     return size() == other.size() && comparisonHelper(const_data(), other.const_data(), this->size());
 }
 
-Buffer &Buffer::operator=(Buffer &&other) {
+Buffer &Buffer::operator=(Buffer &&other) noexcept {
     mData = std::move(other.mData);
     mReserved = other.mReserved;
     mUsed = other.mUsed;
