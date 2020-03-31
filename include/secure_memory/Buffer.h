@@ -20,10 +20,12 @@
 #ifndef SECUREMEMORY_BUFFER_H
 #define SECUREMEMORY_BUFFER_H
 
+#include <cinttypes>
+
 #include "Serializable.h"
 #include "SecureUniquePtr.h"
-#include <cinttypes>
 #include "Range.h"
+#include "SafeInt.h"
 
 class Buffer;
 
@@ -306,9 +308,9 @@ public:
 
 private:
     SecureUniquePtr<uint8_t[]> mData;
-    uint32_t mReserved;
-    uint32_t mUsed = 0;
-    uint32_t mOffset = 0;
+    SafeInt<uint32_t> mReserved;
+    SafeInt<uint32_t> mUsed {0};
+    SafeInt<uint32_t> mOffset {0};
 };
 
 #endif //SECUREMEMORY_BUFFER_H

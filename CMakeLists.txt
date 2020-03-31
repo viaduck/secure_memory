@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2018 The ViaDuck Project
+# Copyright (c) 2015-2020 The ViaDuck Project
 #
 # This file is part of SecureMemory.
 #
@@ -28,8 +28,8 @@ if (OPTION_SECURE_UNIQUEPTR)
     add_definitions(-DOPTION_SECURE_UNIQUEPTR)
 endif()
 
-# enable and require c++11
-set(CMAKE_CXX_STANDARD 11)
+# enable and require c++14
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # glob includes and sources

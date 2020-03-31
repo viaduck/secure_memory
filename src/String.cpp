@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2020 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -20,9 +20,11 @@
 #include <string>
 #include <cstring>
 #include <cmath>
-#include "secure_memory/helper.h"
-#include "secure_memory/String.h"
-#include "secure_memory/BufferRange.h"
+
+#include <secure_memory/SafeInt.h>
+#include <secure_memory/helper.h>
+#include <secure_memory/String.h>
+#include <secure_memory/BufferRange.h>
 
 String::String() : Buffer() { }
 
@@ -108,6 +110,7 @@ std::string String::stl_str() const {
 }
 
 bool String::toInt(uint8_t base, uint32_t &result) const {
+    SafeInt<uint32_t> r;
     result = 0;
 
     if (size() == 0)
@@ -129,11 +132,12 @@ bool String::toInt(uint8_t base, uint32_t &result) const {
             else
                 diff = val - alphabet[0];
 
-            result += diff * pow(base, exp);
+            r += make_si(static_cast<uint32_t>(diff*pow(base, exp)));
             exp++;
         }
     }
 
+    result = r;
     return exp != 0;
 }
 
@@ -144,18 +148,20 @@ String String::toHex(const uint8_t *data, uint32_t size) {
     constexpr const static char *alphabet = "0123456789abcdef";
     constexpr const uint8_t sixteen = static_cast<uint8_t>(16);
 
-    SecureUniquePtr<char[]> final(size*2+1);
-    final()[size*2] = '\0';
+    SecureUniquePtr<char[]> final(make_si(size) * 2_si32 + 1_si32);
+    final()[make_si(size) * 2_si32] = '\0';
 
     String s;
     uint8_t div, rem;
 
     for (uint32_t i = 0; i < size; ++i) {
+        uint32_t i2 = make_si(i) * 2_si32;
+
         rem = data[i] % sixteen;
-        final()[i*2+1] = alphabet[rem];
+        final()[i2 + 1_si32] = alphabet[rem];
 
         div = data[i] / sixteen;
-        final()[i*2] = alphabet[div];
+        final()[i2] = alphabet[div];
     }
     s += final().get();
 

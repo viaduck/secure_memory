@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2018 The ViaDuck Project
+# Copyright (c) 2015-2020 The ViaDuck Project
 #
 # This file is part of SecureMemory.
 #
@@ -29,6 +29,9 @@ if (GTEST_FOUND)
 
     # set up test target
     add_executable(SecureMemory_Test ${SECUREMEMORY_SOURCES} ${SECUREMEMORY_HEADERS} ${TEST_FILES_SOURCES} ${TEST_FILES_HEADERS})
+
+    # do not shred when using tests since they may allocate huge amounts of memory
+    remove_definitions(-DOPTION_SECURE_UNIQUEPTR)
 
     # add sanitization compile options
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID)

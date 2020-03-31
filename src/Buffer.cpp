@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2020 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -17,7 +17,8 @@
  * along with SecureMemory.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
+#include <cstring>
+
 #include <secure_memory/Buffer.h>
 #include <secure_memory/BufferRange.h>
 
@@ -41,7 +42,7 @@ BufferRangeConst Buffer::append(const void *data, uint32_t len) {
 }
 
 BufferRangeConst Buffer::append(const char *data, uint32_t len) {
-    return append(static_cast<const void *>(data), static_cast<uint32_t>(len*sizeof(char)));
+    return append(static_cast<const void *>(data), make_si(len) * make_si<uint32_t>(sizeof(char)));
 }
 
 BufferRangeConst Buffer::append(const Buffer &other) {
@@ -53,15 +54,16 @@ BufferRangeConst Buffer::append(const BufferRangeConst &range) {
 }
 
 BufferRangeConst Buffer::write(const void *data, uint32_t len, uint32_t offset) {
-    if (mOffset+offset+len > mReserved)
-        increase(mOffset+offset+len + mReserved*2);
+    auto requested = mOffset + make_si(offset) + make_si(len);
+    if (requested > mReserved)
+        increase(requested + mReserved * 2_si32);
 
     // now copy new data (if not nullptr)
     if (data != nullptr)
-        memcpy(&mData()[mOffset+offset], data, len);
+        memcpy(&mData()[mOffset + make_si(offset)], data, len);
 
-    if (offset+len > mUsed)
-        mUsed = offset+len;
+    if (make_si(offset) + make_si(len) > mUsed)
+        mUsed = make_si(offset) + make_si(len);
 
     return BufferRangeConst(*this, offset, len);
 }
@@ -81,24 +83,24 @@ BufferRangeConst Buffer::write(const BufferRangeConst &other, uint32_t offset) {
 void Buffer::consume(uint32_t n) {
     if (n > mUsed)
         n = mUsed;
-    mOffset += n;
-    mUsed -= n;
+    mOffset += make_si(n);
+    mUsed -= make_si(n);
 }
 
 void Buffer::reset(uint32_t offsetDiff) {
     if (offsetDiff > mOffset)
         offsetDiff = 0;
-    mUsed += offsetDiff;
-    mOffset -= offsetDiff;
+    mUsed += make_si(offsetDiff);
+    mOffset -= make_si(offsetDiff);
 }
 
 uint32_t Buffer::increase(const uint32_t newCapacity, const bool by) {
     uint32_t capa = newCapacity;
     if (by)
-        capa += size();
+        capa += make_si(size());
     // no need to increase, since buffer is as big as requested
-    if (capa <= (mReserved-mOffset))
-        return (mReserved-mOffset);
+    if (capa <= mReserved - mOffset)
+        return mReserved - mOffset;
 
     // reallocate
     mReserved = capa;
@@ -123,18 +125,18 @@ uint32_t Buffer::increase(const uint32_t newCapacity, const uint8_t value, const
 }
 
 void Buffer::padd(const uint32_t offset, const uint32_t size, const uint8_t value) {
-    increase(offset+size, value);
+    increase(make_si(offset) + make_si(size), make_si(value));
     // do not overwrite existing bytes with supplied value (bytes with offset < mUsed). New bytes have been set to value
     // already by increase(..)
 
     // mark them as used
-    if (offset+size > mUsed)
-        use(offset+size-mUsed);
+    if (make_si(offset) + make_si(size) > mUsed)
+        use(make_si(offset) + make_si(size) - mUsed);
 }
 
 void Buffer::padd(const uint32_t newSize, const uint8_t value) {
     if (newSize > mUsed)
-        padd(mUsed, newSize-mUsed, value);
+        padd(mUsed, make_si(newSize) - mUsed, value);
 }
 
 void Buffer::padd(BufferRange range, uint8_t value) {
@@ -148,26 +150,26 @@ uint32_t Buffer::size() const {
 void *Buffer::data(uint32_t p) {
     if (p > size())
         p = size();
-    return &mData()[mOffset+p];
+    return &mData()[mOffset + make_si(p)];
 }
 
 const void *Buffer::const_data(uint32_t p) const {
     if (p > size())
         p = size();
-    return const_cast<const uint8_t *>(&mData()[mOffset+p]);
+    return const_cast<const uint8_t *>(&mData()[mOffset + make_si(p)]);
 }
 
 const BufferRangeConst Buffer::const_data(uint32_t offset, uint32_t size) const {
     if (offset > this->size())
         offset = this->size();
-    if (offset+size > this->size())
-        size = this->size() - offset;
+    if (make_si(offset) + make_si(size) > this->size())
+        size = make_si(this->size()) - make_si(offset);
     return BufferRangeConst(*this, offset, size);
 }
 
 void Buffer::use(uint32_t n) {
-    if ((mReserved-mOffset) >= n+mUsed)
-        mUsed += n;
+    if ((mReserved - mOffset) >= make_si(n) + mUsed)
+        mUsed += make_si(n);
     else
         mUsed = mReserved - mOffset;
 }
@@ -175,7 +177,7 @@ void Buffer::use(uint32_t n) {
 void Buffer::unuse(uint32_t n) {
     if (n > mUsed)
         n = mUsed;
-    mUsed -= n;
+    mUsed -= make_si(n);
 }
 
 void Buffer::clear(bool shred) {
