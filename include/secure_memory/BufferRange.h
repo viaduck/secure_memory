@@ -30,6 +30,13 @@ typedef Range<const Buffer> BufferRangeConst;
 
 #include "Buffer.h"
 
+#ifdef __clang__
+    #define NO_SANITIZE __attribute__((no_sanitize("integer")))
+#else
+    #define NO_SANITIZE
+#endif
+
+
 // taken from https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
 namespace std {
 
@@ -38,7 +45,7 @@ namespace std {
      */
     template<>
     struct hash<const BufferRangeConst> {
-        __attribute__((no_sanitize("integer"))) std::size_t operator()(const BufferRangeConst &k) const {
+        NO_SANITIZE std::size_t operator()(const BufferRangeConst &k) const {
             using std::size_t;
             using std::hash;
             using std::string;
