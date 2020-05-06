@@ -5,6 +5,7 @@ variables:
 
 stages:
     - build
+    - lint
     - test
 
 build:linux:x86_64:
@@ -19,11 +20,21 @@ build:linux:x86_64:
         paths:
         - build/
 
+lint:linux:x86_64:
+    stage: lint
+    script:
+        - vd-lint SecureMemory $PWD
+    needs:
+        - job: build:linux:x86_64
+          artifacts: false
+
 test:linux:x86_64:
+    variables:
+      GIT_STRATEGY: none
     stage: test
     script:
         - cd build
         - test/SecureMemory_Test             # runs gtest target
-    dependencies:
-    - build:linux:x86_64
+    needs:
+        - build:linux:x86_64
 
