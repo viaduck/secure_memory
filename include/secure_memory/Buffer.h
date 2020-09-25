@@ -271,13 +271,25 @@ public:
     }
 
     /**
+     * Reads a serialized Buffer
+     *
+     * @param in Buffer containing a serialized representation of a Buffer
+     *
+     * @return True on success, false otherwise
+     */
+    bool deserialize(Buffer &in) {
+        BufferRangeConst range(in);
+        return deserialize(range);
+    }
+
+    /**
      * Reads a serialized Buffer from given Range.
      *
      * @param in Range pointing to a serialized representation of a Buffer
      *
      * @return True on success, false otherwise
      */
-    bool deserialize(BufferRangeConst in) {
+    bool deserialize(BufferRangeConst &in) {
         clear();
 
         // TODO Big-Little-Endian
