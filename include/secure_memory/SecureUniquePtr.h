@@ -28,7 +28,8 @@
 class SecureUniquePtrPRNG {
 public:
     /**
-     * memset(..) with will not be optimized away by compilers (hopefully) used for memory erasing.
+     * memset(..) which will (hopefully) not be optimized away by compilers.
+     * Used for memory erasing.
      */
     static void shred(void *dst, size_t len);
 
@@ -141,6 +142,8 @@ public:
     ~SecureUniquePtr() {
 #ifdef OPTION_SECURE_UNIQUEPTR
         SecureUniquePtrPRNG::shred(ptr.get(), sizeof(T) * mSize);
+#else
+        #warning "Disabled secure unique ptr deletion"
 #endif
     }
 

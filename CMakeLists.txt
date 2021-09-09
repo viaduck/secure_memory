@@ -24,9 +24,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
 # user settable settings
 set(OPTION_SECURE_UNIQUEPTR ON CACHE BOOL "Erase memory on unique ptr deletion")
-if (OPTION_SECURE_UNIQUEPTR)
-    add_definitions(-DOPTION_SECURE_UNIQUEPTR)
-endif()
 
 # enable and require c++14
 set(CMAKE_CXX_STANDARD 14)
@@ -41,6 +38,9 @@ add_library(SecureMemory STATIC ${SECUREMEMORY_SOURCES} ${SECUREMEMORY_HEADERS})
 
 # compile options
 target_compile_options(SecureMemory PRIVATE -Wall -Wextra)
+if (OPTION_SECURE_UNIQUEPTR)
+    target_compile_definitions(SecureMemory PUBLIC OPTION_SECURE_UNIQUEPTR)
+endif()
 
 # includes
 target_include_directories(SecureMemory PUBLIC

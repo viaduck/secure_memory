@@ -871,3 +871,9 @@ TEST_F(BufferTest, IntegerOverflow) {
     b.use(max);
     EXPECT_EQ(max, b.size());
 }
+
+TEST_F(BufferTest, SecureFlagEnabled) {
+#ifndef OPTION_SECURE_UNIQUEPTR
+    FAIL() << "Secure UniquePtr is disabled";
+#endif
+}
