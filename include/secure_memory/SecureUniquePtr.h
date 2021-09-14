@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -22,39 +22,16 @@
 
 #include <memory>
 #include <iostream>
-#include <random>
 #include <chrono>
 
-class SecureUniquePtrPRNG {
+#include <secure_memory/SplitMix64.h>
+
+class MemoryShredder {
 public:
-    /**
-     * memset(..) which will (hopefully) not be optimized away by compilers.
-     * Used for memory erasing.
-     */
-    static void shred(void *dst, size_t len);
+    static void shred(void *data, size_t len);
 
 private:
-    /**
-     * PRNG for secure overwrite. The PRNG doesn't have to be cryptographic because the only reason why we
-     * are overwriting with "random" values instead of a fixed value is obscurity: Compound memory blocks cannot be easily
-     * determined.
-     *
-     * Thread safety is accomplished by thread_local keyword.
-     */
-    static thread_local std::mt19937 mRandGenerator;
-
-    /**
-     * @see SecureUniquePtr::mRandGenerator
-     */
-    static thread_local std::uniform_int_distribution<uint8_t> mRandDistribution;
-
-    /**
-     * Generates a PRNG value
-     * @return PRNG value
-     */
-    static uint8_t get() {
-        return mRandDistribution(mRandGenerator);
-    }
+    static thread_local SplitMix64 sRng;
 };
 
 /**
@@ -78,9 +55,7 @@ public:
      * Securely overwrite memory used by std::unique_ptr<T>
      */
     ~SecureUniquePtr() {
-#ifdef OPTION_SECURE_UNIQUEPTR
-        SecureUniquePtrPRNG::shred(ptr.get(), sizeof(T));
-#endif
+        MemoryShredder::shred(ptr.get(), sizeof(T));
     }
 
     /**
@@ -140,11 +115,7 @@ public:
      * Securely overwrite memory used by std::unique_ptr<T[]>
      */
     ~SecureUniquePtr() {
-#ifdef OPTION_SECURE_UNIQUEPTR
-        SecureUniquePtrPRNG::shred(ptr.get(), sizeof(T) * mSize);
-#else
-        #warning "Disabled secure unique ptr deletion"
-#endif
+        MemoryShredder::shred(ptr.get(), sizeof(T) * mSize);
     }
 
     /**

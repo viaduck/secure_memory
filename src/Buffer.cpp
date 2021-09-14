@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -189,7 +189,7 @@ void Buffer::clear(bool shred) {
 
     // overwrite memory securely
     if (shred)
-        SecureUniquePtrPRNG::shred(mData().get(), mReserved);
+        MemoryShredder::shred(mData().get(), mReserved);
 }
 
 bool Buffer::operator==(const Buffer &other) const {

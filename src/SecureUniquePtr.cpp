@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -17,23 +17,30 @@
  * along with SecureMemory.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "secure_memory/SecureUniquePtr.h"
+#include <random>
+
+#include <secure_memory/SecureUniquePtr.h>
 
 #if defined(__GNUC__) || !defined(__clang__)
 #define SM_SUP_ASM_BARRIER 1
 #endif
 
-void SecureUniquePtrPRNG::shred(void *dst, size_t len) {
-    if (dst == nullptr)
+void MemoryShredder::shred(void *data, size_t size) {
+    if (data == nullptr || size == 0)
         return;
 
-#ifdef SM_SUP_ASM_BARRIER
-    for (uint8_t *buf = (uint8_t *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
-    __asm__ __volatile__("" ::"r"(dst): "memory");
+#ifdef OPTION_SECURE_UNIQUEPTR
+    sRng.nextBytes(static_cast<uint8_t *>(data), size);
 #else
-    for (volatile uint8_t *buf = (volatile uint8_t *) dst; len; buf[--len] = SecureUniquePtrPRNG::get());
+    #warning "Disabled secure unique ptr deletion"
+#endif
+
+#ifdef SM_SUP_ASM_BARRIER
+    __asm__ __volatile__(""::"r"(data): "memory");
+#else
+    volatile auto *buf = (volatile uint8_t *) data;
+    buf[0] = buf[0];
 #endif
 }
 
-thread_local std::mt19937 SecureUniquePtrPRNG::mRandGenerator(std::random_device().operator()());
-thread_local std::uniform_int_distribution<uint8_t> SecureUniquePtrPRNG::mRandDistribution(std::numeric_limits<uint8_t>::min(),std::numeric_limits<uint8_t>::max());
+thread_local SplitMix64 MemoryShredder::sRng(std::random_device().operator()());
