@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The ViaDuck Project
+ * Copyright (C) 2020-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -22,6 +22,12 @@
 
 #include <limits>
 #include <type_traits>
+
+#ifdef __clang__
+    #define SM_NO_SANITIZE __attribute__((no_sanitize("integer")))
+#else
+    #define SM_NO_SANITIZE
+#endif
 
 template<typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
 class SafeInt {

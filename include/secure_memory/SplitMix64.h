@@ -24,6 +24,8 @@
 #include <cstring>
 #include <cinttypes>
 
+#include "SafeInt.h"
+
 /**
  * Fast non-cryptographically secure PRNG based on
  * SplitMix http://gee.cs.oswego.edu/dl/papers/oopsla14.pdf
@@ -39,7 +41,7 @@ public:
     /**
      * @return Random number between 0 and max uint64
      */
-    result_type next() {
+    SM_NO_SANITIZE result_type next() {
         result_type z = (mState += UINT64_C(0x9e3779b97f4a7c15));
         z = (z ^ (z >> 30u)) * UINT64_C(0xbf58476d1ce4e5b9);
         z = (z ^ (z >> 27u)) * UINT64_C(0x94d049bb133111eb);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -34,8 +34,8 @@ class has_padd
 
     static_assert(sizeof(char) != sizeof(long), "Unsupported platform: sizeof(char) == sizeof(long)");
 
-    template <typename C> static one test(decltype(&C::padd));
-    template <typename C> static two test(...);
+    template <typename C> static one test(decltype(&C::padd)) { return 0; }
+    template <typename C> static two test(...) { return 0; }
 
 public:
     enum { value = sizeof(test<T>(0)) == sizeof(char) };

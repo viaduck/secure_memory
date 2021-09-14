@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -217,19 +217,19 @@ public:
      * Marks n bytes used. This increases Buffer's size.
      * @param n Number of bytes
      */
-    virtual void use(uint32_t n);
+    void use(uint32_t n);
 
     /**
      * Marks n bytes unused (resp. reverts use(..)). This decreases Buffer's size.
      * @param n Number of bytes
      */
-    virtual void unuse(uint32_t n);
+    void unuse(uint32_t n);
 
     /**
      * Clears the buffer. This resets used and consumed bytes counts.
      * @param shred Whether to overwrite all managed memory (slows down operation)
      */
-    virtual void clear(bool shred = false);
+    void clear(bool shred = false);
 
     /**
      * Compares two Buffers.
@@ -238,7 +238,7 @@ public:
      * @param other
      * @return True if contents of Buffers are the same
      */
-    virtual bool operator==(const Buffer &other) const;
+    bool operator==(const Buffer &other) const;
     /**
      * Compares two Buffers.
      *
@@ -246,7 +246,7 @@ public:
      * @param other
      * @return True if contents of Buffers differ
      */
-    virtual inline bool operator!=(const Buffer &other) const {
+    inline bool operator!=(const Buffer &other) const {
         return !operator==(other);
     }
 
@@ -256,7 +256,7 @@ public:
      * @return *this
      * @see Buffer::Buffer(Buffer &&)
      */
-    virtual Buffer &operator=(Buffer &&other) noexcept;
+    Buffer &operator=(Buffer &&other) noexcept;
 
     /**
      * Serializes the Buffer to given Buffer.
@@ -264,8 +264,7 @@ public:
      * @param out Buffer where the serialized representation of this Buffer will be appended to
      */
     void serialize(Buffer &out) const {
-        uint32_t cSize = size();
-        // TODO Big-Little-Endian
+        uint32_t cSize = hton(size());
         out.append(&cSize, sizeof(cSize));
         out.append(*this);
     }
@@ -292,11 +291,10 @@ public:
     bool deserialize(BufferRangeConst &in) {
         clear();
 
-        // TODO Big-Little-Endian
         if(in.size() < sizeof(uint32_t))
             return false;
 
-        uint32_t cSize = *static_cast<const uint32_t*>(in.const_data());
+        uint32_t cSize = ntoh(*static_cast<const uint32_t*>(in.const_data()));
         in += sizeof(uint32_t);
 
         if(in.size() < cSize)

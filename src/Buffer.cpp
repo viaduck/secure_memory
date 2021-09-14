@@ -35,7 +35,7 @@ Buffer::Buffer(Buffer &&buffer) noexcept : mData(std::move(buffer.mData)), mRese
     buffer.mOffset = 0;
 }
 
-Buffer::~Buffer() { }
+Buffer::~Buffer() = default;
 
 BufferRangeConst Buffer::append(const void *data, uint32_t len) {
     return write(data, len, mUsed);
@@ -65,7 +65,7 @@ BufferRangeConst Buffer::write(const void *data, uint32_t len, uint32_t offset) 
     if (make_si(offset) + make_si(len) > mUsed)
         mUsed = make_si(offset) + make_si(len);
 
-    return BufferRangeConst(*this, offset, len);
+    return {*this, offset, len};
 }
 
 BufferRangeConst Buffer::write(const Buffer &other, uint32_t offset) {

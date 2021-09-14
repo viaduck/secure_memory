@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -30,13 +30,6 @@ typedef Range<const Buffer> BufferRangeConst;
 
 #include "Buffer.h"
 
-#ifdef __clang__
-    #define NO_SANITIZE __attribute__((no_sanitize("integer")))
-#else
-    #define NO_SANITIZE
-#endif
-
-
 // taken from https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
 namespace std {
 
@@ -45,7 +38,7 @@ namespace std {
      */
     template<>
     struct hash<const BufferRangeConst> {
-        NO_SANITIZE std::size_t operator()(const BufferRangeConst &k) const {
+        SM_NO_SANITIZE std::size_t operator()(const BufferRangeConst &k) const {
             using std::size_t;
             using std::hash;
             using std::string;
@@ -58,8 +51,8 @@ namespace std {
             size_t current = 0;
             for (uint32_t a = 0; a < k.size(); a++)
                 current ^=
-                        static_cast<const uint8_t *>(k.const_object().const_data())[k.offset() + a] + 0x9e3779b9 +
-                        (current << 6) + (current >> 2);
+                        static_cast<const uint8_t *>(k.const_object().const_data())[k.offset() + a] + 0x9e3779b9UL +
+                        (current << 6u) + (current >> 2u);
             return current;
         }
     };

@@ -43,19 +43,19 @@ public:
     /**
      * Creates a std::unique_ptr<T>
      */
-    SecureUniquePtr() : ptr(new T()) { }
+    SecureUniquePtr() : mPtr(new T()) { }
 
     /**
      * Move constructor. Other SecureUniquePtr will be reset.
      * @param other
      */
-    SecureUniquePtr(SecureUniquePtr &&other) : ptr(std::move(other.ptr)) { }
+    SecureUniquePtr(SecureUniquePtr &&other) noexcept : mPtr(std::move(other.ptr)) { }
 
     /**
      * Securely overwrite memory used by std::unique_ptr<T>
      */
     ~SecureUniquePtr() {
-        MemoryShredder::shred(ptr.get(), sizeof(T));
+        MemoryShredder::shred(mPtr.get(), sizeof(T));
     }
 
     /**
@@ -63,7 +63,7 @@ public:
      * @return Internal std::unique_ptr<T>
      */
     std::unique_ptr<T, std::default_delete<T>> &operator()() {
-        return ptr;
+        return mPtr;
     }
 
     /**
@@ -71,21 +71,21 @@ public:
      * @return Internal std::unique_ptr<T> (const)
      */
     const std::unique_ptr<T, std::default_delete<T>> &operator()() const {
-        return ptr;
+        return mPtr;
     }
 
     /**
      * Transfers ownership of other's std::unique_ptr<T> to us
      * @param other
      */
-    SecureUniquePtr<T> &operator=(SecureUniquePtr<T> &&other) {
-        ptr = std::move(other.ptr);
+    SecureUniquePtr<T> &operator=(SecureUniquePtr<T> &&other) noexcept {
+        mPtr = std::move(other.ptr);
 
         return *this;
     }
 
 private:
-    std::unique_ptr<T, std::default_delete<T>> ptr;
+    std::unique_ptr<T, std::default_delete<T>> mPtr;
 };
 
 /**
@@ -98,16 +98,13 @@ public:
      * Creates a std::unique_ptr<T[]> with size elements.
      * @param size
      */
-    SecureUniquePtr(size_t size) : mSize(size), ptr(new T[size]) { }
+    explicit SecureUniquePtr(size_t size) : mPtr(new T[size]), mSize(size) { }
 
     /**
      * Transfers ownership of other's std::unique_ptr<T[]> to us
      * @param other
      */
-    SecureUniquePtr(SecureUniquePtr<T[]> && other) {
-        ptr = std::move(other.ptr);
-        mSize = other.mSize;
-
+    SecureUniquePtr(SecureUniquePtr<T[]> && other) noexcept : mPtr(std::move(other.mPtr)), mSize(other.mSize) {
         other.mSize = 0;
     }
 
@@ -115,7 +112,7 @@ public:
      * Securely overwrite memory used by std::unique_ptr<T[]>
      */
     ~SecureUniquePtr() {
-        MemoryShredder::shred(ptr.get(), sizeof(T) * mSize);
+        MemoryShredder::shred(mPtr.get(), sizeof(T) * mSize);
     }
 
     /**
@@ -123,7 +120,7 @@ public:
      * @return Internal std::unique_ptr<T[]>
      */
     std::unique_ptr<T[], std::default_delete<T[]>> &operator()() {
-        return ptr;
+        return mPtr;
     }
 
     /**
@@ -131,15 +128,15 @@ public:
      * @return Internal std::unique_ptr<T> (const)
      */
     const std::unique_ptr<T[], std::default_delete<T[]>> &operator()() const {
-        return ptr;
+        return mPtr;
     }
 
     /**
      * Transfers ownership of other's std::unique_ptr<T[]> to us
      * @param other
      */
-    SecureUniquePtr<T[]> &operator=(SecureUniquePtr<T[]> &&other) {
-        ptr = std::move(other.ptr);
+    SecureUniquePtr<T[]> &operator=(SecureUniquePtr<T[]> &&other) noexcept {
+        mPtr = std::move(other.mPtr);
         mSize = other.mSize;
 
         other.mSize = 0;
@@ -154,8 +151,8 @@ public:
     }
 
 private:
+    std::unique_ptr<T[], std::default_delete<T[]>> mPtr;
     size_t mSize;
-    std::unique_ptr<T[], std::default_delete<T[]>> ptr;
 };
 
 #endif //SECUREMEMORY_SECUREUNIQUEPTR_H

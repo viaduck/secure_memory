@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -71,7 +71,7 @@ public:
      * Creates a String object from a Buffer, copying it's contents
      * @param other The other Buffer object
      */
-     String(const Buffer &other);
+    String(const Buffer &other);
 
     /**
      * Concatenates this and another String
@@ -164,9 +164,9 @@ public:
      * Returns a pointer to a c-style representation (0-terminated) of this String.
      * The returned pointer will always hold the string data at invocation time. Modifications to String later on will NOT be reflected to pointer.
      *
-     * It's lifetime is bound to String's lifetime.
-     *
+     * Its lifetime is bound to the String's lifetime.
      * Warning: Do not alter the returned pointer's memory!
+     *
      * @return C-style string
      */
     const char *c_str();
@@ -184,7 +184,7 @@ public:
      * LIMITATIONS: All signed numbers are treated as unsigned
      * @param base Conversion base
      * @param result The converted number
-     * @return If conversion war successful
+     * @return If conversion was successful
      */
     bool toInt(uint8_t base, uint32_t &result) const;
 
@@ -215,7 +215,9 @@ public:
     friend std::istream &operator>>(std::istream &is, String &string) {
         string.increase(sizeof(char)*512);
         is.getline(static_cast<char *>(string.data()), sizeof(char)*512);
-        string.use(static_cast<uint32_t>(is.gcount()-1));     // dont want the istream 0-terminator; cap is OK, since we limit it to sizeof(char)*512
+
+        // we don't want the istream 0-terminator
+        string.use(static_cast<uint32_t>(is.gcount() > 0 ? is.gcount() - 1 : 0u));
         return is;
     }
 
@@ -241,8 +243,8 @@ public:
         if(other.size() != size() || size() == 0)
             return size() < other.size();
 
-        const uint8_t *s1 = static_cast<const uint8_t *>(const_data());
-        const uint8_t *s2 = static_cast<const uint8_t *>(other.const_data());
+        const auto *s1 = static_cast<const uint8_t *>(const_data());
+        const auto *s2 = static_cast<const uint8_t *>(other.const_data());
 
         uint32_t s_pos = 0;
         while(s1[s_pos] == s2[s_pos] && ++s_pos < size() - 1);
@@ -254,7 +256,7 @@ public:
     using Buffer::serialize;
 
 protected:
-    Buffer mCStrings;       // FIXME holds all returned cstrings
+    Buffer mCStrings;
 
 private:
     String concatHelper(const char *cstring, uint32_t size) const;

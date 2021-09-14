@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -28,20 +28,20 @@
 
 String::String() : Buffer() { }
 
-String::String(const char *cstring) : String(cstring, static_cast<uint32_t>(strlen_s(cstring))) { }       // FIXME integer is truncated if strlen(cstring) > MAX_UINT32
+String::String(const char *cstring) : String(cstring, static_cast<uint32_t>(strlen_s(cstring))) { }
 
 String::String(const char *cstring, uint32_t size) : Buffer(size) {
-    append(cstring, size);
+    Buffer::append(cstring, size);
 }
 
 String::String(const uint8_t *bytes, uint32_t size) : Buffer(size) {
-    append(bytes, size);
+    Buffer::append(bytes, size);
 }
 
 String::String(const String &other) : String(static_cast<const char*>(other.const_data()), other.size()) { }
 
-String::String(const std::string &stlstring) : Buffer(static_cast<uint32_t>(stlstring.size())) {        // FIXME integer is truncated if stlstring.size() > MAX_UINT32
-    append(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));        // FIXME integer is truncated if stlstring.size() > MAX_UINT32
+String::String(const std::string &stlstring) : Buffer(static_cast<uint32_t>(stlstring.size())) {
+    Buffer::append(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));
 }
 
 String::String(const Buffer &other) : String(static_cast<const uint8_t*>(other.const_data()), other.size()) { }
@@ -51,11 +51,11 @@ String String::operator+(const String &other) const {
 }
 
 String String::operator+(const char *cstring) const {
-    return concatHelper(cstring, static_cast<uint32_t>(strlen_s(cstring)));             // FIXME integer is truncated if strlen(cstring) > MAX_UINT32
+    return concatHelper(cstring, static_cast<uint32_t>(strlen_s(cstring)));
 }
 
 String String::operator+(const std::string &stlstring) const {
-    return concatHelper(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));   // FIXME integer is truncated if stlstring.size() > MAX_UINT32
+    return concatHelper(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));
 }
 
 String &String::operator+=(const String &other) {
@@ -64,12 +64,12 @@ String &String::operator+=(const String &other) {
 }
 
 String &String::operator+=(const char *cstring) {
-    append(cstring, static_cast<uint32_t>(strlen_s(cstring)));        // FIXME integer is truncated if strlen(cstring) > MAX_UINT32
+    append(cstring, static_cast<uint32_t>(strlen_s(cstring)));
     return *this;
 }
 
 String &String::operator+=(const std::string &stlstring) {
-    append(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));           // FIXME integer is truncated if strlen(cstring) > MAX_UINT32
+    append(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));
     return *this;
 }
 
@@ -84,7 +84,7 @@ bool String::operator==(const char *other) const {
     if (other == nullptr)       // without this check, there may occur crashes if == is wrongly used
         return false;
 
-    uint32_t cSize = static_cast<uint32_t>(strlen_s(other));       // FIXME integer is truncated if strlen(cstring) > MAX_UINT32
+    auto cSize = static_cast<uint32_t>(strlen_s(other));
     if (size() != cSize)
         return false;
     return comparisonHelper(const_data(), other, cSize);
@@ -98,7 +98,6 @@ bool String::operator==(const std::string &other) const {
 
 const char *String::c_str() {
     // we need to append a 0-termination char to the string, since it's stored without it internally
-    // TODO An extra buffer is necessary for guaranteeing validity of returned pointer's memory
     const void *p = mCStrings.append(const_data(), size()).const_data();
     mCStrings.append("", 1);
 
@@ -106,7 +105,7 @@ const char *String::c_str() {
 }
 
 std::string String::stl_str() const {
-    return std::string(static_cast<const char*>(const_data()), size());
+    return {static_cast<const char*>(const_data()), size()};
 }
 
 bool String::toInt(uint8_t base, uint32_t &result) const {
@@ -132,7 +131,7 @@ bool String::toInt(uint8_t base, uint32_t &result) const {
             else
                 diff = val - alphabet[0];
 
-            r += make_si<uint32_t>(diff*pow(base, exp));
+            r += make_si<uint32_t>(diff * pow(base, exp));
             exp++;
         }
     }
@@ -143,7 +142,7 @@ bool String::toInt(uint8_t base, uint32_t &result) const {
 
 String String::toHex(const uint8_t *data, uint32_t size) {
     if (data == nullptr || size == 0)
-        return String();
+        return {};
 
     constexpr const static char *alphabet = "0123456789abcdef";
     constexpr const uint8_t sixteen = 16;

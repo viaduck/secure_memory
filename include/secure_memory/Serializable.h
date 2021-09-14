@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2021 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -23,7 +23,7 @@
 /**
  * Class indicating presence of some methods for data serialization. We don't use a pure virtual class because of
  * performance (vtable lookup).
- * TODO: Replace with C++ concepts once available (scheduled for c++17)
+ * TODO: Replace with C++ concepts once available (scheduled for c++20)
  */
 class Serializable {
     // uint32_t size() const;
