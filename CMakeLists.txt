@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2020 The ViaDuck Project
+# Copyright (c) 2015-2021 The ViaDuck Project
 #
 # This file is part of SecureMemory.
 #
@@ -25,10 +25,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 # user settable settings
 set(OPTION_SECURE_UNIQUEPTR ON CACHE BOOL "Erase memory on unique ptr deletion")
 
-# enable and require c++14
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # glob includes and sources
 file(GLOB_RECURSE SECUREMEMORY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE SECUREMEMORY_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
@@ -36,10 +32,13 @@ file(GLOB_RECURSE SECUREMEMORY_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 # set up library target
 add_library(SecureMemory STATIC ${SECUREMEMORY_SOURCES} ${SECUREMEMORY_HEADERS})
 
+# require and enable c++14 support
+set_target_properties(SecureMemory PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED YES)
+
 # compile options
 target_compile_options(SecureMemory PRIVATE -Wall -Wextra)
 if (OPTION_SECURE_UNIQUEPTR)
-    target_compile_definitions(SecureMemory PUBLIC OPTION_SECURE_UNIQUEPTR)
+    target_compile_definitions(SecureMemory PUBLIC SECUREMEMORY_OPTION_SECURE_UNIQUEPTR)
 endif()
 
 # includes
