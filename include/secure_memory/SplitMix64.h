@@ -35,6 +35,7 @@
 class SplitMix64 {
 public:
     using result_type = uint_fast64_t;
+    using seed_type = uint64_t;
 
     explicit SplitMix64(uint64_t seed = 0) : mState(seed) { }
 
@@ -67,8 +68,8 @@ public:
         std::memcpy(out + nblocks, &val, nbytes);
     }
 
-    constexpr result_type min() { return std::numeric_limits<result_type>::lowest(); }
-    constexpr result_type max() { return std::numeric_limits<result_type>::max(); }
+    static constexpr result_type min() { return std::numeric_limits<result_type>::lowest(); }
+    static constexpr result_type max() { return std::numeric_limits<result_type>::max(); }
     result_type operator()() { return next(); }
 
 protected:
