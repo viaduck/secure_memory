@@ -20,6 +20,8 @@
 #ifndef SECUREMEMORY_RANGE_H
 #define SECUREMEMORY_RANGE_H
 
+#include <limits>
+
 #include "helper.h"
 
 /**
