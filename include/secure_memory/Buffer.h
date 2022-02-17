@@ -97,6 +97,8 @@ public:
      * @return Range containing information about added range within Buffer
      */
     virtual BufferRangeConst write(const void *data, uint32_t len, uint32_t offset);
+    virtual BufferRangeConst write(const void *data, uint32_t len) { return write(data, len, 0); };
+
     /**
      * Overloaded variant of write(const void *data, uint32_t len, uint32_t offset) which writes the contents of another
      * buffer to this buffer.
@@ -105,6 +107,8 @@ public:
      * @return Range containing information about added range within Buffer
      */
     virtual BufferRangeConst write(const Buffer &other, uint32_t offset);
+    virtual BufferRangeConst write(const Buffer &other) { return write(other, 0); };
+
     /**
      * Overloaded variant of write(const void *data, uint32_t len, uint32_t offset) which writes the contents of another
      * buffer described by a Range to this buffer.
@@ -113,6 +117,8 @@ public:
      * @return Range containing information about added range within Buffer
      */
     virtual BufferRangeConst write(const BufferRange &other, uint32_t offset);
+    virtual BufferRangeConst write(const BufferRange &other) { return write(other, 0); };
+
     /**
      * Overloaded variant of write(const void *data, uint32_t len, uint32_t offset) which writes the contents of another
      * buffer described by a Range to this buffer.
@@ -121,6 +127,7 @@ public:
      * @return Range containing information about added range within Buffer
      */
     virtual BufferRangeConst write(const BufferRangeConst &other, uint32_t offset);
+    virtual BufferRangeConst write(const BufferRangeConst &other) { return write(other, 0); };
 
     /**
      * Consumes n bytes from the beginning, moving the Buffer's beginning.
