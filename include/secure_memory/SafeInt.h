@@ -112,7 +112,7 @@ public:
 
     template <typename U>
     SafeInt<T> &operator=(const U &rhs) {
-        mVal = rhs;
+        mVal = static_cast<T>(rhs);
         return *this;
     }
 
