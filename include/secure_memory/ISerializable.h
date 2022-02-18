@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2022 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -17,18 +17,18 @@
  * along with SecureMemory.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SECUREMEMORY_SERIALIZABLE_H
-#define SECUREMEMORY_SERIALIZABLE_H
+#ifndef SECUREMEMORY_ISERIALIZABLE_H
+#define SECUREMEMORY_ISERIALIZABLE_H
 
 /**
- * Class indicating presence of some methods for data serialization. We don't use a pure virtual class because of
+ * Interface indicating presence of some methods for data serialization. We don't use a pure virtual class because of
  * performance (vtable lookup).
  * TODO: Replace with C++ concepts once available (scheduled for c++20)
  */
-class Serializable {
+class ISerializable {
     // uint32_t size() const;
     // void serialize(Buffer&) const;
     // bool deserialize(const Buffer&);
 };
 
-#endif //SECUREMEMORY_SERIALIZABLE_H
+#endif //SECUREMEMORY_ISERIALIZABLE_H

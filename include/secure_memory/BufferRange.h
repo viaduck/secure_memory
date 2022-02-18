@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2022 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -20,13 +20,11 @@
 #ifndef SECUREMEMORY_BUFFERRANGE_H
 #define SECUREMEMORY_BUFFERRANGE_H
 
-#include <string>
-
 #include "Range.h"
 
 class Buffer;
-typedef Range<Buffer> BufferRange;
-typedef Range<const Buffer> BufferRangeConst;
+using BufferRange = Range<Buffer>;
+using BufferRangeConst = Range<const Buffer>;
 
 #include "Buffer.h"
 
@@ -50,13 +48,10 @@ namespace std {
             // taken from https://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x
             size_t current = 0;
             for (uint32_t a = 0; a < k.size(); a++)
-                current ^=
-                        static_cast<const uint8_t *>(k.const_object().const_data())[k.offset() + a] + 0x9e3779b9UL +
-                        (current << 6u) + (current >> 2u);
+                current ^= *k.const_data(a) + 0x9e3779b9UL + (current << 6u) + (current >> 2u);
             return current;
         }
     };
 }
-
 
 #endif //SECUREMEMORY_BUFFERRANGE_H

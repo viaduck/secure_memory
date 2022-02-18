@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 The ViaDuck Project
+ * Copyright (C) 2015-2022 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -25,13 +25,13 @@
 #include "conversions.h"
 
 inline bool comparisonHelper(const void *one, const void *two, uint32_t size) {
-    const char *cthis = static_cast<const char *>(one),
-            *cother = static_cast<const char *>(two);
+    auto *c1 = static_cast<const char *>(one), *c2 = static_cast<const char *>(two);
 
     // loop breaks on different character or if size() elements have been checked
-    for (; size != 0 && *cthis == *cother; cthis++, cother++, size--);
+    for (; size != 0 && *c1 == *c2; c1++, c2++, size--);
 
-    return size == 0;       // if they equal, iteration count equals size
+    // if they equal, iteration count equals size
+    return size == 0;
 }
 
 inline size_t strlen_s(const char *str) {
@@ -52,6 +52,5 @@ namespace secure_memory {
         swap(one, two);
     }
 }
-
 
 #endif //SECUREMEMORY_HELPER_H

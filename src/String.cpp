@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2022 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -28,34 +28,26 @@
 
 String::String() : Buffer() { }
 
-String::String(const char *cstring) : String(cstring, static_cast<uint32_t>(strlen_s(cstring))) { }
+String::String(const char *c_str) : Buffer(c_str, strlen_s(c_str)) { }
 
-String::String(const char *cstring, uint32_t size) : Buffer(size) {
-    Buffer::append(cstring, size);
+String::String(const String &other) : Buffer(other.const_data(), other.size()) { }
+
+String::String(const std::string &stl_str) : Buffer(stl_str.size()) {
+    Buffer::append(stl_str.data(), stl_str.size());
 }
 
-String::String(const uint8_t *bytes, uint32_t size) : Buffer(size) {
-    Buffer::append(bytes, size);
-}
-
-String::String(const String &other) : String(static_cast<const char*>(other.const_data()), other.size()) { }
-
-String::String(const std::string &stlstring) : Buffer(static_cast<uint32_t>(stlstring.size())) {
-    Buffer::append(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));
-}
-
-String::String(const Buffer &other) : String(static_cast<const uint8_t*>(other.const_data()), other.size()) { }
+String::String(const Buffer &other) : Buffer(other.const_data(), other.size()) { }
 
 String String::operator+(const String &other) const {
-    return concatHelper(static_cast<const char*>(other.const_data()), other.size());
+    return concatHelper(other.const_data(), other.size());
 }
 
-String String::operator+(const char *cstring) const {
-    return concatHelper(cstring, static_cast<uint32_t>(strlen_s(cstring)));
+String String::operator+(const char *c_str) const {
+    return concatHelper(c_str, strlen_s(c_str));
 }
 
-String String::operator+(const std::string &stlstring) const {
-    return concatHelper(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));
+String String::operator+(const std::string &stl_str) const {
+    return concatHelper(stl_str.data(), stl_str.size());
 }
 
 String &String::operator+=(const String &other) {
@@ -63,13 +55,13 @@ String &String::operator+=(const String &other) {
     return *this;
 }
 
-String &String::operator+=(const char *cstring) {
-    append(cstring, static_cast<uint32_t>(strlen_s(cstring)));
+String &String::operator+=(const char *c_str) {
+    append(c_str, strlen_s(c_str));
     return *this;
 }
 
-String &String::operator+=(const std::string &stlstring) {
-    append(stlstring.c_str(), static_cast<uint32_t>(stlstring.size()));
+String &String::operator+=(const std::string &stl_str) {
+    append(stl_str.c_str(), stl_str.size());
     return *this;
 }
 
@@ -81,58 +73,45 @@ String &String::operator=(const String &other) {
 }
 
 bool String::operator==(const char *other) const {
-    if (other == nullptr)       // without this check, there may occur crashes if == is wrongly used
+    // without this check, crashes can occur if operator== is used incorrectly
+    if (other == nullptr)
         return false;
 
-    auto cSize = static_cast<uint32_t>(strlen_s(other));
-    if (size() != cSize)
-        return false;
-    return comparisonHelper(const_data(), other, cSize);
+    auto sz = strlen_s(other);
+    return sz == size() && comparisonHelper(const_data(), other, sz);
 }
 
 bool String::operator==(const std::string &other) const {
-    if (size() != other.size())
-        return false;
-    return comparisonHelper(const_data(), other.c_str(), size());
+    return size() == other.size() && comparisonHelper(const_data(), other.c_str(), size());
 }
 
 const char *String::c_str() {
     // we need to append a 0-termination char to the string, since it's stored without it internally
-    const void *p = mCStrings.append(const_data(), size()).const_data();
-    mCStrings.append("", 1);
+    auto range = mCStrings.append(const_data(), size());
+    mCStrings.appendValue(0);
 
-    return static_cast<const char *>(p);
+    return range.const_data<char>();
 }
 
 std::string String::stl_str() const {
-    return {static_cast<const char*>(const_data()), size()};
+    return {const_data<char>(), size()};
 }
 
 bool String::toInt(uint8_t base, uint32_t &result) const {
+    static constexpr const char *alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
+    static constexpr uint8_t gap = 'a' - '9' - 1;
     SafeInt<uint32_t> r;
-    result = 0;
-
-    if (size() == 0)
-        return false;
-
-    constexpr const static char *alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
-    constexpr const static uint8_t gap = 'a' - '9' - 1;     // difference between 9 and a since they are not siblings in ascii
     uint32_t exp = 0;
 
     // traverse array from back to front
-    for (uint32_t i = size(); i != 0; --i) {
-        uint8_t val = *(static_cast<const uint8_t*>(const_data(i-1)));
-        if (val >= alphabet[0] && val < alphabet[base]) {        // within base bounds
+    for (uint32_t i = size(); i > 0; i--) {
+        auto digit = at<char>(i - 1);
 
-            // need to apply an offset for alphabetic values
-            uint32_t diff;
-            if (val >= alphabet[10])
-                diff = val - gap - alphabet[0];
-            else
-                diff = val - alphabet[0];
-
-            r += make_si<uint32_t>(diff * pow(base, exp));
-            exp++;
+        // digit must be in alphabet range, not in gap range
+        if ((digit >= alphabet[0] && digit <= alphabet[std::min<uint8_t>(9, base - 1)])
+                || (digit >= alphabet[10] && digit < alphabet[base])) {
+            auto value = digit - alphabet[0] - (digit > alphabet[9] ? gap : 0);
+            r += make_si<uint32_t>(static_cast<uint32_t>(value * pow(base, exp++)));
         }
     }
 
@@ -141,33 +120,21 @@ bool String::toInt(uint8_t base, uint32_t &result) const {
 }
 
 String String::toHex(const uint8_t *data, uint32_t size) {
-    if (data == nullptr || size == 0)
-        return {};
-
     constexpr const static char *alphabet = "0123456789abcdef";
     constexpr const uint8_t sixteen = 16;
+    String result(make_si(size) * 2_si32);
 
-    SecureUniquePtr<char[]> final(make_si(size) * 2_si32 + 1_si32);
-    final()[make_si(size) * 2_si32] = '\0';
-
-    String s;
-    uint8_t div, rem;
-
-    for (uint32_t i = 0; i < size; ++i) {
-        rem = data[i] % sixteen;
-        final()[make_si(i) * 2_si32 + 1_si32] = alphabet[rem];
-
-        div = data[i] / sixteen;
-        final()[make_si(i) * 2_si32] = alphabet[div];
+    for (uint32_t i = 0; i < size && data; i++) {
+        result.appendValue(alphabet[data[i] / sixteen]);
+        result.appendValue(alphabet[data[i] % sixteen]);
     }
-    s += final().get();
 
-    return s;
+    return result;
 }
 
 /* PRIVATE */
-String String::concatHelper(const char *cstring, uint32_t size) const {
+String String::concatHelper(const void *c_str, uint32_t size) const {
     String newString(*this);
-    newString.append(cstring, size);
+    newString.append(c_str, size);
     return newString;
 }

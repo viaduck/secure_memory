@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2022 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -22,61 +22,156 @@
 
 #include <limits>
 
+#include "SafeInt.h"
 #include "helper.h"
 
-/**
- * SFINAE test for checking the presence of a function padd
- * @tparam T Class, which is checked for member function presence
- */
-template <typename T>
-class has_padd
-{
-    typedef char one;
-    typedef long two;
-
-    static_assert(sizeof(char) != sizeof(long), "Unsupported platform: sizeof(char) == sizeof(long)");
-
-    template <typename C> static one test(decltype(&C::padd)) { return 0; }
-    template <typename C> static two test(...) { return 0; }
-
-public:
-    enum { value = sizeof(test<T>(0)) == sizeof(char) };
-};
-
-template <typename T>
+template <typename O>
 class Range {
 public:
     /**
      * Creates a Range (offset, size) within an object.
-     * @param obj T
+     *
+     * @param obj O object to construct the range on
      * @param offset Offset in Object to start at
      * @param size Range's size
      * @param resizable Defines if the Range is resizable
      */
-    Range(T &obj, uint32_t offset, uint32_t size, bool resizable = false) :
-            mObj(obj), mSize(size), mOffset(offset), mResizable(resizable) { }
-
+    Range(O &obj, uint32_t offset, uint32_t size, bool resizable = false)
+            : mObj(obj), mOffset(offset), mSize(size), mResizable(resizable) { }
     /**
      * Overload constructor with offset = 0 and size = OBJ_END
-     * @param obj T
+     *
+     * @param obj O object to construct the range on
      */
-    Range(T &obj) : Range(obj, 0, OBJ_END, true) { }
+    Range(O &obj) : Range(obj, 0, OBJ_END, true) { } // NOLINT(google-explicit-constructor)
+    /**
+     * Overload copy constructor for Range with different object type
+     *
+     * @tparam P Type of other Range object
+     * @param other Other range to copy from
+     */
+    template<typename P>
+    explicit Range(Range<P> &other)
+            : Range(other.mObj, other.mOffset, other.mSize, other.mResizable) { }
+
+    /**
+     * @return Const object
+     */
+    inline O &const_object() const {
+        return mObj;
+    }
+    /**
+     * @return Mutable object
+     */
+    inline O &object() {
+        return mObj;
+    }
+
+    /**
+     * @return Size
+     */
+    inline uint32_t size() const {
+        return (mSize == +OBJ_END ? mObj.size() - offset() : mSize);
+    }
+    /**
+     * Set size
+     */
+    inline void size(uint32_t size) {
+        mSize = size;
+    }
+
+    /**
+     * @return Offset
+     */
+    inline uint32_t offset() const {
+        return mOffset;
+    }
+    /**
+     * Set offset
+     */
+    inline void offset(uint32_t offset) {
+        mOffset = offset;
+    }
+
+    /**
+     * @return Whether the Range is resizable
+     */
+    inline bool isResizable() const {
+        return mResizable;
+    }
+    /**
+     * Sets the resizable property
+     *
+     * @param resizable If the Range is resizable
+     */
+    inline void isResizable(bool resizable) {
+        mResizable = resizable;
+    }
+
+    /**
+     * Get typed pointer to underlying data at offset
+     *
+     * @tparam T Type of data pointed to by result
+     * @param pos Offset (defaults to 0)
+     */
+    template<typename T = uint8_t>
+    inline const T *const_data(uint32_t pos = 0) const {
+        return const_object().template const_data<T>(make_si(pos) + mOffset);
+    }
+    /**
+     * Get new constant Range for given offset and size relative to this Range's.
+     * The new Range is not constrained to the space pointed to by this Range.
+     *
+     * @param off Starting offset for new Range, relative to this one.
+     * @param sz Size of new Range
+     * @return New constant Range on the same object with specified offset and size
+     */
+    Range<O> const_data(uint32_t off, uint32_t sz) const {
+        return const_object().const_data(mOffset + make_si(off), sz);
+    }
+
+    /**
+     * Get mutable, typed pointer to underlying data at offset
+     *
+     * @tparam T Type of data pointed to by result
+     * @param pos Offset (defaults to 0)
+     */
+    template<typename T = uint8_t>
+    inline T *data(uint32_t pos = 0) {
+        return object().template data<T>(make_si(pos) + mOffset);
+    }
+    /**
+     * Get new mutable Range for given offset and size relative to this Range's.
+     * The new Range is not constrained to the space pointed to by this Range.
+     *
+     * @param off Starting offset for new Range, relative to this one.
+     * @param sz Size of new Range
+     * @return New mutable Range on the same object with specified offset and size
+     */
+    Range<O> data(uint32_t off, uint32_t sz) {
+        return object().data(mOffset + make_si(off), sz);
+    }
+
+    /**
+     * Write to the underlying object relative to this Range.
+     *
+     * @param data Pointer to data
+     * @param size Size of data
+     * @param off Offset relative to this Range's to write to in underlying object. Defaults to 0.
+     */
+    inline void write(const void *data, uint32_t size, uint32_t off = 0) {
+        object().write(data, size, mOffset + make_si(off));
+    }
 
     /**
      * Compares two Ranges
+     *
      * @param other
      * @return True if content within the ranges is the same
      */
     bool operator==(const Range &other) const {
-        if (other.size() != size())       // size is different -> they are truly not equal
-            return false;
-
-        const char *cthis = static_cast<const char *>(mObj.const_data(offset())),
-                *cother = static_cast<const char *>(other.mObj.const_data(other.offset()));
-
-        return comparisonHelper(cthis, cother, size());
+        return other.size() == size() && comparisonHelper(const_data(), other.const_data(), size());
     }
-
     /**
      * Compares two Ranges
      * @param other
@@ -85,85 +180,10 @@ public:
     bool operator!=(const Range &other) const {
         return !(other == *this);
     }
-
-
-    /**
-     * Getter: const T
-     * @return object
-     */
-    inline T &const_object() const {
-        return mObj;
-    }
-    /**
-     * Getter: T
-     * @return object
-     */
-    inline T &object() {
-        return mObj;
-    }
-
-    /**
-     * Getter: size
-     * @return size
-     */
-    inline uint32_t size() const {
-        return (mSize == OBJ_END ? mObj.size() - offset() : mSize);
-    }
-    /**
-     * Setter: size
-     */
-    inline void size(uint32_t size) {
-        mSize = size;
-    }
-
-    /**
-     * Getter: offset
-     * @return offset
-     */
-    inline uint32_t offset() const {
-        return mOffset;
-    }
-    /**
-     * Setter: offset
-     */
-    inline void offset(uint32_t offset) {
-        mOffset = offset;
-    }
-
-    /**
-     * @return If the Range is resizable
-     */
-    inline bool isResizable() const {
-        return mResizable;
-    }
-    /**
-     * Sets the resizable property
-     * @param resizable If the Range is resizable
-     */
-    inline void isResizable(bool resizable) {
-        mResizable = resizable;
-    }
-
-    /**
-     * Getter: const underlying data (of T)
-     * @param pos Offset (defaults to 0)
-     */
-    inline const void *const_data(uint32_t pos = 0) const {
-        return const_object().const_data(pos+offset());
-    }
-    /**
-     * Getter: underlying data (of T)
-     * @param pos Offset (defaults to 0)
-     */
-    inline void *data(uint32_t pos = 0) {
-        return object().data(pos+offset());
-    }
-
     /**
      * Shrinks the Range by moving it forward.
      * Internally, this increases the offset and reduces the size.
      *
-     * This operation is in-place and modifies the Range!
      * @param addition Amount of bytes to move
      * @return this
      */
@@ -171,39 +191,47 @@ public:
         if (addition > size())
             addition = size();
 
-        mOffset += addition;
-        mSize -= (mSize != OBJ_END ? addition : 0);
+        mOffset += make_si(addition);
+        mSize -= make_si(mSize != OBJ_END ? addition : 0);
         return *this;
     }
 
     /**
-     * Padds the Range to size (if possible).
+     * Tries to ensure the range has specified size (if possible).
+     *
      * @param dest Range to padd
      * @param size Target size
      * @return True if Range has the required size or can be increased to size
      */
-    template<typename = std::enable_if<has_padd<T>::value, int>>
-    static bool applyPolicy(Range<T> &dest, uint32_t size) {
+    bool ensureSize(uint32_t sz) {
         // not enough size and not resizable -> fail
-        if (size > dest.size() && !dest.isResizable())
+        if (sz > size() && !isResizable())
             return false;
 
         // not enough size and resizable -> increase size (will be applied to buffer in padd)
-        else if (size > dest.size())
-            dest.size(size);
+        if (sz > size())
+            size(sz);
 
         // the range in the buffer will be allocated and initialized to zero
-        dest.object().padd(dest);
+        object().padd(*this);
         return true;
     }
 
     // constant for size sticking to the end
     const static uint32_t OBJ_END = std::numeric_limits<uint32_t>::max();
 
-private:
-    T &mObj;
-    uint32_t mSize;
-    uint32_t mOffset;
+protected:
+    // allow Ranges with different type protected access
+    template<typename P>
+    friend class Range;
+
+    // object holding underlying range data
+    O &mObj;
+    // offset into object, start of range
+    SafeInt<uint32_t> mOffset;
+    // size of object range, starting at offset
+    SafeInt<uint32_t> mSize;
+    // whether the underlying object allows resizing the range
     bool mResizable = false;
 };
 

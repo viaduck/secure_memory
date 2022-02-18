@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2022 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -17,32 +17,36 @@
  * along with SecureMemory.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstring>
-
 #include <secure_memory/Buffer.h>
 #include <secure_memory/BufferRange.h>
 
 Buffer::Buffer(uint32_t reserved) : mData(reserved), mReserved(reserved) { }
 
-Buffer::Buffer(const Buffer &buffer) : mData(buffer.mReserved), mReserved(buffer.mReserved), mUsed(buffer.mUsed), mOffset(0) {
+Buffer::Buffer(const void *bytes, uint32_t size) : Buffer(size) {
+    Buffer::append(bytes, size);
+}
+
+Buffer::Buffer(const BufferRangeConst &range) : Buffer(range.size()) {
+    Buffer::append(range);
+}
+
+Buffer::Buffer(const Buffer &buffer)
+        : mData(buffer.mReserved), mReserved(buffer.mReserved), mOffset(0), mUsed(buffer.mUsed) {
     // copy whole old buffer into new one. But drop the already skipped bytes (mOffset)
     memcpy(mData().get(), &buffer.mData()[buffer.mOffset], mUsed);
 }
 
-Buffer::Buffer(Buffer &&buffer) noexcept : mData(std::move(buffer.mData)), mReserved(buffer.mReserved), mUsed(buffer.mUsed), mOffset(buffer.mOffset) {
+Buffer::Buffer(Buffer &&buffer) noexcept
+        : mData(std::move(buffer.mData)), mReserved(buffer.mReserved), mOffset(buffer.mOffset), mUsed(buffer.mUsed) {
     buffer.mReserved = 0;
-    buffer.mUsed = 0;
     buffer.mOffset = 0;
+    buffer.mUsed = 0;
 }
 
 Buffer::~Buffer() = default;
 
 BufferRangeConst Buffer::append(const void *data, uint32_t len) {
     return write(data, len, mUsed);
-}
-
-BufferRangeConst Buffer::append(const char *data, uint32_t len) {
-    return append(static_cast<const void *>(data), make_si(len) * make_si<uint32_t>(sizeof(char)));
 }
 
 BufferRangeConst Buffer::append(const Buffer &other) {
@@ -83,15 +87,31 @@ BufferRangeConst Buffer::write(const BufferRangeConst &other, uint32_t offset) {
 void Buffer::consume(uint32_t n) {
     if (n > mUsed)
         n = mUsed;
+
     mOffset += make_si(n);
     mUsed -= make_si(n);
 }
 
-void Buffer::reset(uint32_t offsetDiff) {
+void Buffer::unconsume(uint32_t offsetDiff) {
     if (offsetDiff > mOffset)
         offsetDiff = 0;
+
     mUsed += make_si(offsetDiff);
     mOffset -= make_si(offsetDiff);
+}
+
+void Buffer::use(uint32_t n) {
+    if ((mReserved - mOffset) >= make_si(n) + mUsed)
+        mUsed += make_si(n);
+    else
+        mUsed = mReserved - mOffset;
+}
+
+void Buffer::unuse(uint32_t n) {
+    if (n > mUsed)
+        n = mUsed;
+
+    mUsed -= make_si(n);
 }
 
 uint32_t Buffer::increase(const uint32_t newCapacity, const bool by) {
@@ -118,9 +138,10 @@ uint32_t Buffer::increase(const uint32_t newCapacity, const bool by) {
 
 uint32_t Buffer::increase(const uint32_t newCapacity, const uint8_t value, const bool by) {
     uint32_t r = increase(newCapacity, by);
+
     // initialize with supplied value
     for (uint32_t i = mUsed; i < r; ++i)
-        static_cast<uint8_t *>(data())[i] = value;
+        data()[i] = value;
 
     return r;
 }
@@ -148,16 +169,11 @@ uint32_t Buffer::size() const {
     return mUsed;
 }
 
-void *Buffer::data(uint32_t p) {
+const void *Buffer::const_data_raw(uint32_t p) const {
     if (p > size())
         p = size();
-    return &mData()[mOffset + make_si(p)];
-}
 
-const void *Buffer::const_data(uint32_t p) const {
-    if (p > size())
-        p = size();
-    return const_cast<const uint8_t *>(&mData()[mOffset + make_si(p)]);
+    return &mData()[mOffset + make_si(p)];
 }
 
 BufferRangeConst Buffer::const_data(uint32_t offset, uint32_t sz) const {
@@ -170,22 +186,21 @@ BufferRangeConst Buffer::const_data(uint32_t offset, uint32_t sz) const {
     return {*this, offset, sz};
 }
 
-void Buffer::use(uint32_t n) {
-    if ((mReserved - mOffset) >= make_si(n) + mUsed)
-        mUsed += make_si(n);
-    else
-        mUsed = mReserved - mOffset;
+void *Buffer::data_raw(uint32_t p) {
+    if (p > size())
+        p = size();
+
+    return &mData()[mOffset + make_si(p)];
 }
 
-void Buffer::unuse(uint32_t n) {
-    if (n > mUsed)
-        n = mUsed;
-    mUsed -= make_si(n);
+BufferRange Buffer::data(uint32_t offset, uint32_t sz) {
+    padd(offset, sz);
+    return {*this, offset, sz};
 }
 
 void Buffer::clear(bool shred) {
-    mUsed = 0;
     mOffset = 0;
+    mUsed = 0;
 
     // overwrite memory securely
     if (shred)
@@ -199,12 +214,37 @@ bool Buffer::operator==(const Buffer &other) const {
 Buffer &Buffer::operator=(Buffer &&other) noexcept {
     mData = std::move(other.mData);
     mReserved = other.mReserved;
-    mUsed = other.mUsed;
     mOffset = other.mOffset;
+    mUsed = other.mUsed;
 
     other.mReserved = 0;
-    other.mUsed = 0;
     other.mOffset = 0;
+    other.mUsed = 0;
 
     return *this;
+}
+
+void Buffer::serialize(BufferRange &out) const {
+    uint32_t sz = hton(size());
+
+    out.write(&sz, sizeof(sz));
+    out += sizeof(sz);
+    out.write(const_data(), size());
+    out += size();
+}
+
+bool Buffer::deserialize(BufferRangeConst &in) {
+    clear();
+    if(in.size() < sizeof(uint32_t))
+        return false;
+
+    uint32_t sz = ntoh(*in.const_data<uint32_t>());
+    in += sizeof(uint32_t);
+
+    if(in.size() < sz)
+        return false;
+
+    append(in.const_data(), sz);
+    in += sz;
+    return true;
 }

@@ -22,6 +22,7 @@
 #include <secure_memory/BufferRange.h>
 #include "BufferTest.h"
 #include "custom_assert.h"
+#include "secure_memory/String.h"
 
 
 TEST_F(BufferTest, CopyConstructor) {
@@ -539,20 +540,20 @@ TEST_F(BufferTest, ConsumeUseTest) {
     }
 }
 
-TEST_F(BufferTest, ResetTest) {
+TEST_F(BufferTest, ConsumeUnconsumeTest) {
     Buffer a(100);
     ASSERT_EQ(0, static_cast<int32_t>(a.size()));
     a.use(20);
     ASSERT_EQ(20, static_cast<int32_t>(a.size()));
-    a.reset(10);
+    a.unconsume(10);
     ASSERT_EQ(20, static_cast<int32_t>(a.size()));      // no offset yet
     a.consume(5);
     ASSERT_EQ(15, static_cast<int32_t>(a.size()));
-    a.reset(5);
+    a.unconsume(5);
     ASSERT_EQ(20, static_cast<int32_t>(a.size()));
-    a.reset(5);
+    a.unconsume(5);
     ASSERT_EQ(20, static_cast<int32_t>(a.size()));      // no offset anymore
-    a.reset(0);
+    a.unconsume(0);
     ASSERT_EQ(20, static_cast<int32_t>(a.size()));
 }
 
@@ -826,22 +827,63 @@ TEST_F(BufferTest, End) {
     EXPECT_TRUE(end.isResizable());
 }
 
-TEST_F(BufferTest, Policy) {
+TEST_F(BufferTest, EnsureSize) {
     Buffer b1, b2, b3;
     b3.padd(32, 0);
     BufferRange range1(b1), range2(b2, 0, BufferRange::OBJ_END), range3(b3, 0, b3.size());
 
     // range 1 can be resized
-    EXPECT_TRUE(BufferRange::applyPolicy(range1, 32));
+    EXPECT_TRUE(range1.ensureSize(32));
     EXPECT_EQ(32u, b1.size());
     // range2 can't
-    EXPECT_FALSE(BufferRange::applyPolicy(range2, 32));
+    EXPECT_FALSE(range2.ensureSize(32));
     EXPECT_EQ(0u, b2.size());
     // range3 is not resizable, but has enough size already
-    EXPECT_TRUE(BufferRange::applyPolicy(range3, 32));
+    EXPECT_TRUE(range3.ensureSize(32));
     EXPECT_EQ(32u, b3.size());
     // try resizing non-resizable range3 more than b3
-    EXPECT_FALSE(BufferRange::applyPolicy(range3, 33));
+    EXPECT_FALSE(range3.ensureSize(33));
+}
+
+TEST_F(BufferTest, Serialize) {
+    Buffer a, b, c;
+    a.append("asdskldaksdlkasl", 16);
+
+    // serialize
+    a.serializeAppend(b);
+    EXPECT_TRUE(c.deserializeFrom(b));
+    EXPECT_EQ(a, c);
+}
+
+TEST_F(BufferTest, SerializeConcat) {
+    Buffer a1, a2, b, c1, c2;
+    a1.append("asdskldaksdlkasl", 16);
+    a2.append("1290812081kjaskjashakjsh21212312", 32);
+
+    // serialize
+    BufferRange destination(b);
+    a1.serialize(destination);
+    a2.serialize(destination);
+    BufferRangeConst source(b);
+    ASSERT_TRUE(c1.deserialize(source));
+    ASSERT_TRUE(c2.deserialize(source));
+    EXPECT_EQ(a1, c1);
+    EXPECT_EQ(a2, c2);
+}
+
+TEST_F(BufferTest, SerializeConcatBuffer) {
+    Buffer a1, a2, b, c1, c2;
+    a1.append("asdskldaksdlkasl", 16);
+    a2.append("1290812081kjaskjashakjsh21212312", 32);
+
+    // serialize
+    a1.serializeAppend(b);
+    a2.serializeAppend(b);
+    BufferRangeConst source(b);
+    ASSERT_TRUE(c1.deserialize(source));
+    ASSERT_TRUE(c2.deserialize(source));
+    EXPECT_EQ(a1, c1);
+    EXPECT_EQ(a2, c2);
 }
 
 TEST_F(BufferTest, SizeChange) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2022 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -26,52 +26,36 @@
 #include "BufferRange.h"
 
 class String : public Buffer {
-
 public:
     /**
      * Creates an empty String
      */
     String();
-
     /**
      * Creates a String object from a c-style string or byte sequence, copying it's contents.
      *
      * Warning: The string must be 0-terminated!
-     * @param cstring C-style string
+     * @param c_str C-style string
      */
-    String(const char *cstring);
-
-    /**
-     * Creates a String object from a c-style string or byte sequence, copying it's contents
-     * @param cstring C-style string
-     * @param size The c-style string's size in characters (excluding 0-termination)
-     */
-    String(const char *cstring, uint32_t size);
-
-    /**
-     * Creates a String object from a byte sequence, copying it's contents
-     * @param bytes Byte sequence
-     * @param size The c-style string's size in characters (excluding 0-termination)
-     */
-    String(const uint8_t *bytes, uint32_t size);
-
+    String(const char *c_str); // NOLINT(google-explicit-constructor)
     /**
      * Creates a String object from an STL string (std::string), copying it's contents
-     * @param stlstring The std::string object
+     * @param stl_str The std::string object
      */
-    String(const std::string &stlstring);
-
+    String(const std::string &stl_str); // NOLINT(google-explicit-constructor)
     /**
      * Creates a String object from another String, copying it's contents
      * @param other The other String object
      */
     String(const String &other);
-
     /**
      * Creates a String object from a Buffer, copying it's contents
      * @param other The other Buffer object
      */
-    String(const Buffer &other);
+    String(const Buffer &other); // NOLINT(google-explicit-constructor)
+
+    // also include constructors of Buffer
+    using Buffer::Buffer;
 
     /**
      * Concatenates this and another String
@@ -84,13 +68,13 @@ public:
      * @param other Other c-style string to concatenate
      * @return A new String object containing the concatenated strings
      */
-    String operator+(const char *cstring) const;
+    String operator+(const char *c_str) const;
     /**
      * Concatenates this and an STL string (std::string)
      * @param other Other std::string to concatenate
      * @return A new String object containing the concatenated strings
      */
-    String operator+(const std::string &stlstring) const;
+    String operator+(const std::string &stl_str) const;
 
     /**
      * Concatenates this and another String
@@ -103,17 +87,17 @@ public:
      * @param other Other c-style string to concatenate
      * @return A new String object containing the concatenated strings
      */
-    String &operator+=(const char *cstring);
+    String &operator+=(const char *c_str);
     /**
      * Concatenates this and an STL string (std::string)
      * @param other Other std::string to concatenate
      * @return A new String object containing the concatenated strings
      */
-    String &operator+=(const std::string &stlstring);
+    String &operator+=(const std::string &stl_str);
 
     /**
-     * Compares a String and a cstring (byte-comparison)
-     * @param other Cstring to compare to this String (must be 0-terminated)
+     * Compares a String and a c_str (byte-comparison)
+     * @param other C-string to compare to this String (must be 0-terminated)
      * @return True if they are equal, false if not
      */
     bool operator==(const char *other) const;
@@ -125,8 +109,8 @@ public:
     bool operator==(const std::string &other) const;
 
     /**
-     * Compares a String and a cstring (byte-comparison)
-     * @param other Cstring to compare to this String (must be 0-terminated)
+     * Compares a String and a c_str (byte-comparison)
+     * @param other C-string to compare to this String (must be 0-terminated)
      * @return True if they are equal, false if not
      */
     inline bool operator!=(const char *other) const {
@@ -161,11 +145,8 @@ public:
     String &operator=(const String &other);
 
     /**
-     * Returns a pointer to a c-style representation (0-terminated) of this String.
-     * The returned pointer will always hold the string data at invocation time. Modifications to String later on will NOT be reflected to pointer.
-     *
-     * Its lifetime is bound to the String's lifetime.
-     * Warning: Do not alter the returned pointer's memory!
+     * Returns a pointer to a zero-terminated, c-style, internal copy of this String.
+     * The resulting pointer is bound to the String lifetime.
      *
      * @return C-style string
      */
@@ -195,7 +176,7 @@ public:
      * @return New String instance containing the hex string
      */
     inline String toHex() const {
-        return String::toHex(static_cast<const uint8_t *>(const_data()), size());
+        return String::toHex(const_data(), size());
     }
 
     /**
@@ -213,8 +194,8 @@ public:
      * @return param is (for chaining)
      */
     friend std::istream &operator>>(std::istream &is, String &string) {
-        string.increase(sizeof(char)*512);
-        is.getline(static_cast<char *>(string.data()), sizeof(char)*512);
+        string.increase(sizeof(char) * 512);
+        is.getline(string.data<char>(), sizeof(char) * 512);
 
         // we don't want the istream 0-terminator
         string.use(static_cast<uint32_t>(is.gcount() > 0 ? is.gcount() - 1 : 0u));
@@ -228,7 +209,7 @@ public:
      * @return param os (for chaining)
      */
     friend std::ostream &operator<<(std::ostream &os, const String &string) {
-        os.write(static_cast<const char *>(string.const_data()), string.size());
+        os.write(string.const_data<char>(), string.size());
         return os;
     }
 
@@ -240,15 +221,13 @@ public:
      * @return True if this String is lexically smaller than the other one
      */
     inline virtual bool operator<(const String &other) const {
+        const auto *s1 = const_data(), *s2 = other.const_data();
+
         if(other.size() != size() || size() == 0)
             return size() < other.size();
 
-        const auto *s1 = static_cast<const uint8_t *>(const_data());
-        const auto *s2 = static_cast<const uint8_t *>(other.const_data());
-
         uint32_t s_pos = 0;
         while(s1[s_pos] == s2[s_pos] && ++s_pos < size() - 1);
-
         return s1[s_pos] < s2[s_pos];
     }
 
@@ -259,7 +238,7 @@ protected:
     Buffer mCStrings;
 
 private:
-    String concatHelper(const char *cstring, uint32_t size) const;
+    String concatHelper(const void *c_str, uint32_t size) const;
 };
 
 namespace std {
@@ -275,6 +254,5 @@ namespace std {
         }
     };
 }
-
 
 #endif //SECUREMEMORY_STRING_H
