@@ -16,7 +16,7 @@
 # along with SecureMemory.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.8)
 project(SecureMemory)
 
 # add own modules
@@ -32,8 +32,8 @@ file(GLOB_RECURSE SECUREMEMORY_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 # set up library target
 add_library(SecureMemory STATIC ${SECUREMEMORY_SOURCES} ${SECUREMEMORY_HEADERS})
 
-# require and enable c++14 support
-set_target_properties(SecureMemory PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED YES)
+# require and enable c++17 support, to support header compilation with c++17 we have to set an interface definition
+target_compile_features(SecureMemory INTERFACE cxx_std_17)
 
 # compile options
 target_compile_options(SecureMemory PRIVATE -Wall -Wextra)
