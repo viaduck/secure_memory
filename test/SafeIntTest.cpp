@@ -44,7 +44,7 @@ TEST_F(SafeIntTest, Add) {
     int16_t int16_max = std::numeric_limits<int16_t>::max();
 
     // basic arithmetic
-    EXPECT_EQ(0, 0_si + 0_si);
+    EXPECT_EQ(0u, 0_si + 0_si);
     EXPECT_EQ(uint16_min, make_si(uint16_min) + 0_si16);
     EXPECT_EQ(uint16_min, 0_si16 + make_si(uint16_min));
     EXPECT_EQ(uint16_max, make_si(uint16_max) + 0_si16);
@@ -96,7 +96,7 @@ TEST_F(SafeIntTest, Sub) {
     int16_t int16_max = std::numeric_limits<int16_t>::max();
 
     // basic arithmetic
-    EXPECT_EQ(0, 0_si - 0_si);
+    EXPECT_EQ(0u, 0_si - 0_si);
     EXPECT_EQ(uint16_min, make_si(uint16_min) - 0_si16);
     EXPECT_EQ(uint16_min, 0_si16 - make_si(uint16_min));
     EXPECT_EQ(uint16_max, make_si(uint16_max) - 0_si16);
@@ -149,8 +149,8 @@ TEST_F(SafeIntTest, Mul) {
     int16_t int16_max = std::numeric_limits<int16_t>::max();
 
     // basic arithmetic
-    EXPECT_EQ(0, 0_si * 0_si);
-    EXPECT_EQ(1, 1_si * 1_si);
+    EXPECT_EQ(0u, 0_si * 0_si);
+    EXPECT_EQ(1u, 1_si * 1_si);
     EXPECT_EQ(1, -1_ssi * -1_ssi);
     EXPECT_EQ(-1, -1_ssi * 1_ssi);
     EXPECT_EQ(-1, 1_ssi * -1_ssi);
