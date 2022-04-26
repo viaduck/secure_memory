@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2021 The ViaDuck Project
+# Copyright (c) 2015-2022 The ViaDuck Project
 #
 # This file is part of SecureMemory.
 #
@@ -32,6 +32,9 @@ if (GTEST_FOUND)
 
     # do not shred when using tests since they may allocate huge amounts of memory (affects this directory and below)
     remove_definitions(-DSECUREMEMORY_OPTION_SECURE_UNIQUEPTR)
+
+    # enable additional warnings
+    target_compile_options(SecureMemory_Test PRIVATE -Wall -Wextra)
 
     # add sanitization compile options
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID)
