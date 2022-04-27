@@ -35,11 +35,11 @@ class BaseN {
 protected:
     template <size_t Base>
     struct CodingTable {
-        const char invalidChar = Base + 1;
-
         char paddingChar = 0;
         char encoding[Base] = {};
         char decoding[256] = {};
+
+        const char invalidChar = Base + 1;
     };
 
     /**
