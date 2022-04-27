@@ -796,14 +796,14 @@ TEST(StringTest, lessOperator) {
         ASSERT_FALSE(p < s);
     }
     {
-        String s("bb"), p("aaa");
+        String s("aaa"), p("bb");
         ASSERT_TRUE(s < p);
         ASSERT_FALSE(p < s);
     }
     {
         String s("aa"), p("z");
-        ASSERT_FALSE(s < p);
-        ASSERT_TRUE(p < s);
+        ASSERT_TRUE(s < p);
+        ASSERT_FALSE(p < s);
     }
     {
         String q("test");

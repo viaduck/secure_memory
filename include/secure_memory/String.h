@@ -215,20 +215,13 @@ public:
 
     /**
      * Compares two Strings lexically
-     * // FIXME: this is just enough to use a set<String>, but does not actually compare lexically
      *
      * @param other String to compare to this String
      * @return True if this String is lexically smaller than the other one
      */
-    inline virtual bool operator<(const String &other) const {
+    inline bool operator<(const String &other) const {
         const auto *s1 = const_data(), *s2 = other.const_data();
-
-        if(other.size() != size() || size() == 0)
-            return size() < other.size();
-
-        uint32_t s_pos = 0;
-        while(s1[s_pos] == s2[s_pos] && ++s_pos < size() - 1);
-        return s1[s_pos] < s2[s_pos];
+        return std::lexicographical_compare(s1, s1 + size(), s2, s2 + other.size());
     }
 
     using Buffer::deserialize;
