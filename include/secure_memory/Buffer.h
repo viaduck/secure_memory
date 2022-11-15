@@ -209,9 +209,16 @@ public:
      void padd(BufferRange range, uint8_t value = 0);
 
     /**
-     * Returns the Buffer's size.
+     * @return Size of the Buffer.
      */
     uint32_t size() const;
+
+    /**
+     * @return True if the Buffer is empty.
+     */
+    inline bool empty() const {
+        return size() == 0;
+    }
 
     /**
      * Returns a constant data pointer to the buffer data at offset p.
@@ -308,6 +315,15 @@ public:
      */
     inline bool operator!=(const Buffer &other) const {
         return !operator==(other);
+    }
+
+    /**
+     * Implicit bool cast indicating whether the Buffer is non-empty.
+     *
+     * @return True if the Buffer is non-empty.
+     */
+    inline operator bool() const {
+        return !empty();
     }
 
     /**

@@ -416,32 +416,32 @@ TEST(StringTest, compareTest) {
 TEST(StringTest, emptyTest) {
     {
         String s("");
-        ASSERT_TRUE(s.isEmpty());
+        ASSERT_TRUE(s.empty());
     }
     {
         String s(nullptr);
-        ASSERT_TRUE(s.isEmpty());
+        ASSERT_TRUE(s.empty());
     }
     {
         String s(String(""));
-        ASSERT_TRUE(s.isEmpty());
+        ASSERT_TRUE(s.empty());
     }
     {
         String s(std::string(""));
-        ASSERT_TRUE(s.isEmpty());
+        ASSERT_TRUE(s.empty());
     }
 
     {
         String s("abc");
-        ASSERT_FALSE(s.isEmpty());
+        ASSERT_FALSE(s.empty());
     }
     {
         String s(std::string("abc"));
-        ASSERT_FALSE(s.isEmpty());
+        ASSERT_FALSE(s.empty());
     }
     {
         String s(String("abc"));
-        ASSERT_FALSE(s.isEmpty());
+        ASSERT_FALSE(s.empty());
     }
 }
 

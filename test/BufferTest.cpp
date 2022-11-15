@@ -470,21 +470,27 @@ TEST_F(BufferTest, ConsumeTest) {
 TEST_F(BufferTest, UseTest) {
     Buffer b(25);
     ASSERT_EQ(0, static_cast<int32_t>(b.size()));
+    ASSERT_TRUE(b.empty());
 
     b.use(0);
     ASSERT_EQ(0, static_cast<int32_t>(b.size()));
+    ASSERT_TRUE(b.empty());
 
     b.use(2);
     ASSERT_EQ(2, static_cast<int32_t>(b.size()));
+    ASSERT_FALSE(b.empty());
 
     b.use(0);
     ASSERT_EQ(2, static_cast<int32_t>(b.size()));
+    ASSERT_FALSE(b.empty());
 
     b.use(10);
     ASSERT_EQ(12, static_cast<int32_t>(b.size()));
+    ASSERT_FALSE(b.empty());
 
     b.use(80);       // this would exceed capacity -> size must be capacity now
     ASSERT_EQ(25, static_cast<int32_t>(b.size()));
+    ASSERT_FALSE(b.empty());
 }
 
 TEST_F(BufferTest, UnuseTest) {

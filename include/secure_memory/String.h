@@ -130,14 +130,6 @@ public:
     using Buffer::operator!=;
 
     /**
-     * Checks if String is empty
-     * @return True if String is empty, false if not
-     */
-    inline bool isEmpty() const {
-        return size() == 0;
-    }
-
-    /**
      * Assigns a new String, copying it's contents
      * @param other The other String object
      * @return Reference to this
