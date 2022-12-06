@@ -224,6 +224,16 @@ Buffer &Buffer::operator=(Buffer &&other) noexcept {
     return *this;
 }
 
+Buffer &Buffer::operator=(const Buffer &other) noexcept {
+    // handle self-assignment
+    if (this != &other) {
+        clear();
+        write(other, 0);
+    }
+
+    return *this;
+}
+
 void Buffer::serialize(BufferRange &out) const {
     uint32_t sz = hton(size());
 

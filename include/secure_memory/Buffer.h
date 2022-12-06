@@ -327,13 +327,21 @@ public:
     }
 
     /**
-     * Similar to move constructor. The other Buffer will be left in default state.
+     * Move assignment operator, similar to move constructor. The other Buffer will be left in default state.
      *
-     * @param other Other buffer's rvalue reference
+     * @param other Other buffer to move-assign
      * @return *this
      * @see Buffer::Buffer(Buffer &&)
      */
     Buffer &operator=(Buffer &&other) noexcept;
+    /**
+     * Copy assignment operator, similar to copy constructor.
+     *
+     * @param other Other buffer to copy-assign
+     * @return *this
+     * @see Buffer::Buffer(const Buffer &)
+     */
+    Buffer &operator=(const Buffer &other) noexcept;
 
     /**
      * Serializes this Buffer to the specified BufferRange.
