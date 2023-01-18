@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 The ViaDuck Project
+ * Copyright (C) 2015-2023 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -162,22 +162,21 @@ public:
     bool toInt(uint8_t base, uint32_t &result) const;
 
     /**
-     * Creates a Hex string from the contained binary data
-     * @param data Binary data
-     * @param size Data size
-     * @return New String instance containing the hex string
-     */
-    inline String toHex() const {
-        return String::toHex(const_data(), size());
-    }
-
-    /**
      * Creates a Hex string from the specified binary data
      * @param data Binary data
      * @param size Data size
      * @return String instance containing the hex string
      */
     static String toHex(const uint8_t *data, uint32_t size);
+
+    /**
+     * Creates a Hex string from the contained binary data in the given buffer
+     * @param buffer Buffer with binary data to convert to hex
+     * @return New String instance containing the hex string
+     */
+    static String toHex(const Buffer &buffer) {
+        return String::toHex(buffer.const_data(), buffer.size());
+    }
 
     /**
      * Stream operator supporting e.g. streaming std::cin into String

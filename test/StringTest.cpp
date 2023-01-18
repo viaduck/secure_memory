@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2023 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -699,7 +699,7 @@ TEST(StringTest, toHex) {
     // String::toHex()
     {
         String o;
-        String s = o.toHex();
+        String s = String::toHex(o);
         ASSERT_EQ(0, static_cast<int32_t>(s.size()));
         EXPECT_ARRAY_EQ(const char, "", s.const_data(),
                         static_cast<int32_t>(s.size()));       // String does not use any 0-terminator internally
@@ -707,7 +707,7 @@ TEST(StringTest, toHex) {
     {
         uint8_t bytes[] = {255, 1, 14, 3, 12, 5, 6, 255, 127, 189, 0};
         String o(bytes, 10);
-        String s = o.toHex();
+        String s = String::toHex(o);
         ASSERT_EQ(10 * 2, static_cast<int32_t>(s.size()));
         EXPECT_ARRAY_EQ(const char, "ff010e030c0506ff7fbd00", s.const_data(),
                         static_cast<int32_t>(s.size()));       // String does not use any 0-terminator internally
@@ -715,7 +715,7 @@ TEST(StringTest, toHex) {
     {
         uint8_t bytes[] = {0};
         String o(bytes, 1);
-        String s = o.toHex();
+        String s = String::toHex(o);
         ASSERT_EQ(1 * 2, static_cast<int32_t>(s.size()));
         EXPECT_ARRAY_EQ(const char, "00", s.const_data(),
                         static_cast<int32_t>(s.size()));       // String does not use any 0-terminator internally
@@ -723,7 +723,7 @@ TEST(StringTest, toHex) {
     {
         uint8_t *bytes = nullptr;
         String o(bytes, 0);
-        String s = o.toHex();
+        String s = String::toHex(o);
         ASSERT_EQ(0 * 2, static_cast<int32_t>(s.size()));
         EXPECT_ARRAY_EQ(const char, "", s.const_data(),
                         static_cast<int32_t>(s.size()));       // String does not use any 0-terminator internally
