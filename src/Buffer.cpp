@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 The ViaDuck Project
+ * Copyright (C) 2015-2023 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -258,3 +258,8 @@ bool Buffer::deserialize(BufferRangeConst &in) {
     in += sz;
     return true;
 }
+
+std::size_t std::hash<const Buffer>::operator()(const Buffer &k) const {
+    return std::hash<const BufferRangeConst>().operator()(k);
+}
+

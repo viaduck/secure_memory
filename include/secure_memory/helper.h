@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 The ViaDuck Project
+ * Copyright (C) 2015-2023 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -24,14 +24,29 @@
 #include <functional>
 #include "conversions.h"
 
-inline bool comparisonHelper(const void *one, const void *two, uint32_t size) {
-    auto *c1 = static_cast<const char *>(one), *c2 = static_cast<const char *>(two);
+inline bool comparisonHelper(const void *a, const void *b, uint32_t size) {
+    auto *c1 = static_cast<const char *>(a), *c2 = static_cast<const char *>(b);
 
     // loop breaks on different character or if size() elements have been checked
     for (; size != 0 && *c1 == *c2; c1++, c2++, size--);
 
     // if they equal, iteration count equals size
     return size == 0;
+}
+
+inline bool lessHelper(const void *a, uint32_t sizeA, const void *b, uint32_t sizeB) {
+    auto *u1 = static_cast<const uint8_t *>(a), *u2 = static_cast<const uint8_t *>(b);
+
+    // loop breaks on different character or if sizeA or sizeB has been checked
+    uint32_t i = 0;
+    for(; i < sizeA && i < sizeB && u1[i] == u2[i]; i++);
+
+    // if both sizes still fit, unequal byte was encountered, use operator<
+    if (i < sizeA && i < sizeB)
+        return u1[i] < u2[i];
+
+    // if one size no longer fits, the shorter element is considered "less"
+    return sizeA < sizeB;
 }
 
 inline size_t strlen_s(const char *str) {

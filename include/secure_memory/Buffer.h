@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 The ViaDuck Project
+ * Copyright (C) 2015-2023 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -344,6 +344,19 @@ public:
     Buffer &operator=(const Buffer &other) noexcept;
 
     /**
+     * Compares two Buffers by byte values.
+     * If the first byte that is different between the Buffers has a smaller value than in other, this Buffer will
+     * be considered less than other. If the contents are partially equal, but this Buffer has a smaller size, it
+     * will also be considered less.
+     *
+     * @param other Buffer to compare to this Buffer
+     * @return True if the content in this buffer is "less-than" the content in other
+     */
+    inline bool operator<(const Buffer &other) const {
+        return lessHelper(const_data_raw(), size(), other.const_data_raw(), other.size());
+    }
+
+    /**
      * Serializes this Buffer to the specified BufferRange.
      * Advances the specified Range by the amount of data written.
      *
@@ -411,5 +424,13 @@ private:
     // used bytes in data, beginning at offset
     SafeInt<uint32_t> mUsed {0};
 };
+
+namespace std {
+    /// Implement hash function for Buffer, so that it is a usable key in STL containers
+    template<>
+    struct hash<const Buffer> {
+        std::size_t operator()(const Buffer &k) const;
+    };
+}
 
 #endif //SECUREMEMORY_BUFFER_H

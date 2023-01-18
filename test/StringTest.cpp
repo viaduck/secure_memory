@@ -824,7 +824,9 @@ TEST(StringTest, hashOp) {
         size_t hashTest = hasher(test);
         size_t hashDiff = hasher(testDiff);
         size_t hashSim = hasher(testSim);
+        size_t hashTest2 = hasher(test);
         ASSERT_NE(hashTest, hashDiff);
         ASSERT_NE(hashTest, hashSim);
+        ASSERT_EQ(hashTest, hashTest2);
     }
 }

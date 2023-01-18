@@ -226,15 +226,11 @@ private:
 };
 
 namespace std {
-
-    /**
-     * Implement hash function for String class (so that String is usable in a hash map)
-     */
+    /// Implement hash function for String, so that it is a usable key in STL containers
     template<>
     struct hash<const String> {
         std::size_t operator()(const String &k) const {
-            std::hash<const BufferRangeConst> test;
-            return test.operator()(k);
+            return std::hash<const BufferRangeConst>().operator()(k);
         }
     };
 }

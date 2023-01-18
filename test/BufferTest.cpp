@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 The ViaDuck Project
+ * Copyright (C) 2015-2023 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -22,8 +22,6 @@
 #include <secure_memory/BufferRange.h>
 #include "BufferTest.h"
 #include "custom_assert.h"
-#include "secure_memory/String.h"
-
 
 TEST_F(BufferTest, CopyConstructor) {
     Buffer a(20);
@@ -821,6 +819,48 @@ TEST_F(BufferTest, ComparisonTest) {
         b2.append("abc", 3);
         ASSERT_FALSE(b == b2);
         ASSERT_TRUE(b != b2);
+    }
+}
+
+TEST_F(BufferTest, lessOperator) {
+    {
+        Buffer s("\0\0\00123", 5), p("\0\0\00223", 5);
+        ASSERT_TRUE(s < p);
+        ASSERT_FALSE(p < s);
+    }
+    {
+        Buffer s("\0\0\00023", 5), p("\1\1\00123", 5);
+        ASSERT_TRUE(s < p);
+        ASSERT_FALSE(p < s);
+    }
+    {
+        Buffer s("aa", 5), p("z", 5);
+        ASSERT_TRUE(s < p);
+        ASSERT_FALSE(p < s);
+    }
+    {
+        Buffer q("test", 5);
+        ASSERT_FALSE(q < q);
+    }
+    {
+        Buffer q, p("test", 5);
+        ASSERT_FALSE(q < q);
+        ASSERT_TRUE(q < p);
+        ASSERT_FALSE(p < q);
+    }
+}
+
+TEST_F(BufferTest, hashOp) {
+    {
+        Buffer test("test1", 5), testDiff("lkajsasjs", 9), testSim("test2", 5);
+        std::hash<const Buffer> hasher;
+        size_t hashTest = hasher(test);
+        size_t hashDiff = hasher(testDiff);
+        size_t hashSim = hasher(testSim);
+        size_t hashTest2 = hasher(test);
+        ASSERT_NE(hashTest, hashDiff);
+        ASSERT_NE(hashTest, hashSim);
+        ASSERT_EQ(hashTest, hashTest2);
     }
 }
 
