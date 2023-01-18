@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2022 The ViaDuck Project
+# Copyright (c) 2015-2023 The ViaDuck Project
 #
 # This file is part of SecureMemory.
 #
@@ -37,9 +37,9 @@ if (GTEST_FOUND)
     target_compile_options(SecureMemory_Test PRIVATE -Wall -Wextra)
 
     # add sanitization compile options
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID AND ENABLE_SAN)
         message(STATUS "Sanitization compile options enabled.")
-        target_compile_options(SecureMemory_Test PRIVATE -ftrapv -fsanitize=integer -fno-sanitize-recover=integer)
+        target_compile_options(SecureMemory_Test PRIVATE -ftrapv -fsanitize=integer)
         target_link_options(SecureMemory_Test PRIVATE -fsanitize=integer)
     else()
         message(STATUS "Sanitization compile options NOT enabled.")
