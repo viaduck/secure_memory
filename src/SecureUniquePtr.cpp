@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2023 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -29,7 +29,7 @@ void MemoryShredder::shred(void *data, size_t size) {
     if (data == nullptr || size == 0)
         return;
 
-#ifdef SECUREMEMORY_OPTION_SECURE_UNIQUEPTR
+#ifdef SECURE_MEMORY_OPTION_SECURE_UNIQUE_PTR
     sRng.nextBytes(static_cast<uint8_t *>(data), size);
 #else
     #warning "Disabled secure unique ptr deletion"

@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2021 The ViaDuck Project
+# Copyright (c) 2015-2023 The ViaDuck Project
 #
 # This file is part of SecureMemory.
 #
@@ -17,37 +17,37 @@
 #
 
 cmake_minimum_required(VERSION 3.8)
-project(SecureMemory)
+project(secure_memory)
 
 # add own modules
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
 # user settable settings
-set(OPTION_SECURE_UNIQUEPTR ON CACHE BOOL "Erase memory on unique ptr deletion")
+set(OPTION_SECURE_UNIQUE_PTR ON CACHE BOOL "Erase memory on unique ptr deletion")
 
 # glob includes and sources
-file(GLOB_RECURSE SECUREMEMORY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE SECUREMEMORY_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE SECURE_MEMORY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SECURE_MEMORY_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
 # set up library target
-add_library(SecureMemory STATIC ${SECUREMEMORY_SOURCES} ${SECUREMEMORY_HEADERS})
+add_library(secure_memory STATIC ${SECURE_MEMORY_SOURCES} ${SECURE_MEMORY_HEADERS})
 
 # require and enable c++17 support, to support header compilation with c++17 we have to set an interface definition
-target_compile_features(SecureMemory INTERFACE cxx_std_17)
+target_compile_features(secure_memory INTERFACE cxx_std_17)
 
 # compile options
-target_compile_options(SecureMemory PRIVATE -Wall -Wextra)
-if (OPTION_SECURE_UNIQUEPTR)
-    target_compile_definitions(SecureMemory PUBLIC SECUREMEMORY_OPTION_SECURE_UNIQUEPTR)
+target_compile_options(secure_memory PRIVATE -Wall -Wextra)
+if (OPTION_SECURE_UNIQUE_PTR)
+    target_compile_definitions(secure_memory PUBLIC SECURE_MEMORY_OPTION_SECURE_UNIQUE_PTR)
 endif()
 
 # includes
-target_include_directories(SecureMemory PUBLIC
+target_include_directories(secure_memory PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include/
         )
 
 if (WIN32)
-    target_link_libraries(SecureMemory ws2_32)
+    target_link_libraries(secure_memory ws2_32)
 endif()
 
 # add test subdir

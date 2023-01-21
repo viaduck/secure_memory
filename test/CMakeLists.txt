@@ -28,24 +28,24 @@ if (GTEST_FOUND)
     include_directories(${GTEST_INCLUDE_DIRS})
 
     # set up test target
-    add_executable(SecureMemory_Test ${SECUREMEMORY_SOURCES} ${SECUREMEMORY_HEADERS} ${TEST_FILES_SOURCES} ${TEST_FILES_HEADERS})
+    add_executable(secure_memory_test ${SECURE_MEMORY_SOURCES} ${SECURE_MEMORY_HEADERS} ${TEST_FILES_SOURCES} ${TEST_FILES_HEADERS})
 
     # do not shred when using tests since they may allocate huge amounts of memory (affects this directory and below)
-    remove_definitions(-DSECUREMEMORY_OPTION_SECURE_UNIQUEPTR)
+    remove_definitions(-DSECURE_MEMORY_OPTION_SECURE_UNIQUE_PTR)
 
     # enable additional warnings
-    target_compile_options(SecureMemory_Test PRIVATE -Wall -Wextra)
+    target_compile_options(secure_memory_test PRIVATE -Wall -Wextra)
 
     # add sanitization compile options
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID AND ENABLE_SAN)
         message(STATUS "Sanitization compile options enabled.")
-        target_compile_options(SecureMemory_Test PRIVATE -ftrapv -fsanitize=integer)
-        target_link_options(SecureMemory_Test PRIVATE -fsanitize=integer)
+        target_compile_options(secure_memory_test PRIVATE -ftrapv -fsanitize=integer)
+        target_link_options(secure_memory_test PRIVATE -fsanitize=integer)
     else()
         message(STATUS "Sanitization compile options NOT enabled.")
     endif()
-    target_link_libraries(SecureMemory_Test ${GTEST_BOTH_LIBRARIES} SecureMemory)
+    target_link_libraries(secure_memory_test ${GTEST_BOTH_LIBRARIES} secure_memory)
     if (NOT ANDROID)
-        target_link_libraries(SecureMemory_Test pthread)
+        target_link_libraries(secure_memory_test pthread)
     endif()
 endif()

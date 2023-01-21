@@ -34,7 +34,7 @@ test:linux:x86_64:
     stage: test
     script:
         - cd build
-        - test/SecureMemory_Test             # runs gtest target
+        - test/secure_memory_test             # runs gtest target
     needs:
         - build:linux:x86_64
 

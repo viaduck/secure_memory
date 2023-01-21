@@ -22,7 +22,7 @@ This library is subject to the GNU Lesser General Public License v3.0 (GNU
 LGPLv3).
 
 ```
-Copyright (C) 2016-2022  The ViaDuck Project
+Copyright (C) 2016-2023  The ViaDuck Project
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
