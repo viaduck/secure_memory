@@ -20,6 +20,8 @@
 #include <secure_memory/Buffer.h>
 #include <secure_memory/BufferRange.h>
 
+Buffer::Buffer() : Buffer(512) { }
+
 Buffer::Buffer(uint32_t reserved) : mData(reserved), mReserved(reserved) { }
 
 Buffer::Buffer(const void *bytes, uint32_t size) : Buffer(size) {

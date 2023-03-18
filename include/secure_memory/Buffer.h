@@ -32,11 +32,15 @@ using BufferRangeConst = Range<const Buffer>;
 class Buffer : public ISerializable {
 public:
     /**
+     * Creates a Buffer object with a default internal buffer size of 512 bytes.
+     */
+    Buffer();
+    /**
      * Creates a Buffer object with an internal buffer of reserved size.
      *
-     * @param reserved Initial buffer capacity in bytes. Defaults to 512
+     * @param reserved Initial buffer capacity in bytes.
      */
-    explicit Buffer(uint32_t reserved = 512);
+    explicit Buffer(uint32_t reserved);
     /**
      * Creates a Buffer object from a byte sequence, copying it's contents
      *
