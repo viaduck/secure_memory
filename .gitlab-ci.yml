@@ -7,6 +7,7 @@ stages:
     - build
     - lint
     - test
+    - coverage
 
 build:linux:x86_64:
     stage: build
@@ -16,7 +17,7 @@ build:linux:x86_64:
         - cmake -GNinja ../ -DGTEST_SRC_DIR=/usr/src/googletest/
         - ninja
     artifacts:
-        expire_in: 2h                   # do not pollute disk
+        expire_in: 2h
         paths:
         - build/
 
@@ -34,7 +35,19 @@ test:linux:x86_64:
     stage: test
     script:
         - cd build
-        - test/secure_memory_test             # runs gtest target
+        - test/secure_memory_test
     needs:
         - build:linux:x86_64
+
+coverage:linux:x86_64:
+  stage: coverage
+  script:
+    - cd build
+    - cmake . -DCMAKE_BUILD_TYPE=Debug -DVIADUCK_COVERAGE=ON
+    - ninja secure_memory_test_coverage
+  artifacts:
+    paths:
+      - build/secure_memory_test_coverage/
+  needs:
+    - build:linux:x86_64
 

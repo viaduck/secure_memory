@@ -17,35 +17,28 @@
 #
 
 include(FindOrBuildGTest)
-
 if (GTEST_FOUND)
-    # glob test files
-    file(GLOB_RECURSE TEST_FILES_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-    file(GLOB_RECURSE TEST_FILES_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+    # collect test files
+    file(GLOB_RECURSE TEST_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-    # include relevant dirs
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-    include_directories(${GTEST_INCLUDE_DIRS})
+    macro(make_viaduck_test_target name)
+        add_executable(${name} ${SECURE_MEMORY_FILES} ${TEST_FILES})
 
-    # set up test target
-    add_executable(secure_memory_test ${SECURE_MEMORY_SOURCES} ${SECURE_MEMORY_HEADERS} ${TEST_FILES_SOURCES} ${TEST_FILES_HEADERS})
+        # includes
+        target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+        # link deps
+        target_link_libraries(${name} PUBLIC secure_memory ${GTEST_TARGET})
+        # enable additional warnings
+        target_compile_options(${name} PRIVATE -Wall -Wextra)
+        # do not shred when using tests since they may allocate huge amounts of memory (affects this directory and below)
+        remove_definitions(-DSECURE_MEMORY_OPTION_SECURE_UNIQUE_PTR)
+    endmacro()
+    make_viaduck_test_target(secure_memory_test)
 
-    # do not shred when using tests since they may allocate huge amounts of memory (affects this directory and below)
-    remove_definitions(-DSECURE_MEMORY_OPTION_SECURE_UNIQUE_PTR)
+    include(EnableSanitizers)
+    enable_sanitizers_for_target(secure_memory_test)
 
-    # enable additional warnings
-    target_compile_options(secure_memory_test PRIVATE -Wall -Wextra)
-
-    # add sanitization compile options
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID AND ENABLE_SAN)
-        message(STATUS "Sanitization compile options enabled.")
-        target_compile_options(secure_memory_test PRIVATE -ftrapv -fsanitize=integer)
-        target_link_options(secure_memory_test PRIVATE -fsanitize=integer)
-    else()
-        message(STATUS "Sanitization compile options NOT enabled.")
-    endif()
-    target_link_libraries(secure_memory_test ${GTEST_BOTH_LIBRARIES} secure_memory)
-    if (NOT ANDROID)
-        target_link_libraries(secure_memory_test pthread)
-    endif()
+    include(EnableCoverage)
+    enable_coverage_for_target(secure_memory_test ${CMAKE_CURRENT_SOURCE_DIR}/../
+        "test/*" "${GTEST_SRC_DIR}/*")
 endif()
