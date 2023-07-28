@@ -22,6 +22,7 @@
 
 #include <limits>
 #include <type_traits>
+#include <cstdint>
 
 #ifdef __clang__
     #define SM_NO_SANITIZE __attribute__((no_sanitize("integer")))
