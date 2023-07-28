@@ -16,7 +16,7 @@
 # along with SecureMemory.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.18)
 project(secure_memory)
 
 # user settable settings
