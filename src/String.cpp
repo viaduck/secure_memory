@@ -32,10 +32,6 @@ String::String(const char *c_str) : Buffer(c_str, strlen_s(c_str)) { }
 
 String::String(const String &other) : Buffer(other.const_data(), other.size()) { }
 
-String::String(const std::string &stl_str) : Buffer(stl_str.size()) {
-    Buffer::append(stl_str.data(), stl_str.size());
-}
-
 String::String(const Buffer &other) : Buffer(other.const_data(), other.size()) { }
 
 String String::operator+(const String &other) const {

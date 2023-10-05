@@ -32,6 +32,10 @@ Buffer::Buffer(const BufferRangeConst &range) : Buffer(range.size()) {
     Buffer::append(range);
 }
 
+Buffer::Buffer(const std::string &stl_str) : Buffer(stl_str.size()) {
+    Buffer::append(stl_str.data(), stl_str.size());
+}
+
 Buffer::Buffer(const Buffer &buffer)
         : mData(buffer.mReserved), mReserved(buffer.mReserved), mOffset(0), mUsed(buffer.mUsed) {
     // copy whole old buffer into new one. But drop the already skipped bytes (mOffset)

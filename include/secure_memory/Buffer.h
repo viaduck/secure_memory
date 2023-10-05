@@ -55,6 +55,11 @@ public:
      */
     explicit Buffer(const BufferRangeConst &range);
     /**
+     * Creates a Buffer object from an STL string (std::string), copying it's contents
+     * @param stl_str The std::string object
+     */
+    Buffer(const std::string &stl_str); // NOLINT(google-explicit-constructor)
+    /**
      * Creates a Buffer object from another Buffer (deep-copy).
      *
      * @param buffer A reference to the buffer to be copied

@@ -39,11 +39,6 @@ public:
      */
     String(const char *c_str); // NOLINT(google-explicit-constructor)
     /**
-     * Creates a String object from an STL string (std::string), copying it's contents
-     * @param stl_str The std::string object
-     */
-    String(const std::string &stl_str); // NOLINT(google-explicit-constructor)
-    /**
      * Creates a String object from another String, copying it's contents
      * @param other The other String object
      */
