@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2023 The ViaDuck Project
+# Copyright (c) 2015-2024 The ViaDuck Project
 #
 # This file is part of SecureMemory.
 #
@@ -21,6 +21,7 @@ project(secure_memory)
 
 # user settable settings
 set(OPTION_SECURE_UNIQUE_PTR ON CACHE BOOL "Erase memory on unique ptr deletion")
+option(SECURE_MEMORY_BUILD_TESTS "Enable test compilation for secure memory" OFF)
 
 # add own modules
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
@@ -45,7 +46,6 @@ if (OPTION_SECURE_UNIQUE_PTR)
 endif()
 
 # add test subdir
-add_subdirectory(test)
-
-
-
+if (SECURE_MEMORY_BUILD_TESTS)
+    add_subdirectory(test)
+endif()

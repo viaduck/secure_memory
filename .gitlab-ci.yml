@@ -14,7 +14,7 @@ build:linux:x86_64:
     script:
         - mkdir build
         - cd build
-        - cmake -GNinja ../ -DGTEST_SRC_DIR=/usr/src/googletest/
+        - cmake -GNinja ../ -DSECURE_MEMORY_BUILD_TESTS=ON -DGTEST_SRC_DIR=/usr/src/googletest/
         - ninja
     artifacts:
         expire_in: 2h
