@@ -29,7 +29,7 @@ void MemoryShredder::shred(void *data, size_t size) {
     if (data == nullptr || size == 0)
         return;
 
-#ifdef SECURE_MEMORY_OPTION_SECURE_UNIQUE_PTR
+#ifdef SECURE_MEMORY_UNIQUE_PTR_SHRED
     sRng.nextBytes(static_cast<uint8_t *>(data), size);
 #else
     #warning "Disabled secure unique ptr deletion"

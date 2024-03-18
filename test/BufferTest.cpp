@@ -961,7 +961,7 @@ TEST_F(BufferTest, IntegerOverflow) {
 }
 
 TEST_F(BufferTest, SecureFlagEnabled) {
-#ifndef SECURE_MEMORY_OPTION_SECURE_UNIQUE_PTR
+#ifndef SECURE_MEMORY_UNIQUE_PTR_SHRED
     FAIL() << "Secure UniquePtr is disabled";
 #endif
 }

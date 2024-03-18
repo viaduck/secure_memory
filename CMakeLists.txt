@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.18)
 project(secure_memory)
 
 # user settable settings
-set(OPTION_SECURE_UNIQUE_PTR ON CACHE BOOL "Erase memory on unique ptr deletion")
+option(SECURE_MEMORY_UNIQUE_PTR_SHRED "Erase memory on unique ptr deletion" ON)
 option(SECURE_MEMORY_BUILD_TESTS "Enable test compilation for secure memory" OFF)
 
 # add own modules
@@ -41,8 +41,8 @@ endif()
 target_compile_features(secure_memory PUBLIC cxx_std_17)
 # compile options
 target_compile_options(secure_memory PRIVATE -Wall -Wextra)
-if (OPTION_SECURE_UNIQUE_PTR)
-    target_compile_definitions(secure_memory PUBLIC SECURE_MEMORY_OPTION_SECURE_UNIQUE_PTR)
+if (SECURE_MEMORY_UNIQUE_PTR_SHRED)
+    target_compile_definitions(secure_memory PUBLIC SECURE_MEMORY_UNIQUE_PTR_SHRED)
 endif()
 
 # add test subdir
