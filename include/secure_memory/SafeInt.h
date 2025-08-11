@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 The ViaDuck Project
+ * Copyright (C) 2020-2025 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -131,34 +131,34 @@ bool operator==(const U &lhs, const SafeInt<T> &rhs) {
     return rhs == lhs;
 }
 
-constexpr SafeInt<unsigned long long int> operator "" _si(unsigned long long val) {
+constexpr SafeInt<unsigned long long int> operator ""_si(unsigned long long val) {
     return SafeInt<unsigned long long>(val);
 }
-constexpr SafeInt<long long int> operator "" _ssi(unsigned long long val) {
+constexpr SafeInt<long long int> operator ""_ssi(unsigned long long val) {
     return SafeInt<long long>(val);
 }
-constexpr SafeInt<uint8_t> operator "" _si8(unsigned long long val) {
+constexpr SafeInt<uint8_t> operator ""_si8(unsigned long long val) {
     return SafeInt<uint8_t>(val);
 }
-constexpr SafeInt<int8_t> operator "" _ssi8(unsigned long long val) {
+constexpr SafeInt<int8_t> operator ""_ssi8(unsigned long long val) {
     return SafeInt<int8_t>(val);
 }
-constexpr SafeInt<uint16_t> operator "" _si16(unsigned long long val) {
+constexpr SafeInt<uint16_t> operator ""_si16(unsigned long long val) {
     return SafeInt<uint16_t>(val);
 }
-constexpr SafeInt<int16_t> operator "" _ssi16(unsigned long long val) {
+constexpr SafeInt<int16_t> operator ""_ssi16(unsigned long long val) {
     return SafeInt<int16_t>(val);
 }
-constexpr SafeInt<uint32_t> operator "" _si32(unsigned long long val) {
+constexpr SafeInt<uint32_t> operator ""_si32(unsigned long long val) {
     return SafeInt<uint32_t>(val);
 }
-constexpr SafeInt<int32_t> operator "" _ssi32(unsigned long long val) {
+constexpr SafeInt<int32_t> operator ""_ssi32(unsigned long long val) {
     return SafeInt<int32_t>(val);
 }
-constexpr SafeInt<uint64_t> operator "" _si64(unsigned long long val) {
+constexpr SafeInt<uint64_t> operator ""_si64(unsigned long long val) {
     return SafeInt<uint64_t>(val);
 }
-constexpr SafeInt<int64_t> operator "" _ssi64(unsigned long long val) {
+constexpr SafeInt<int64_t> operator ""_ssi64(unsigned long long val) {
     return SafeInt<int64_t>(val);
 }
 
