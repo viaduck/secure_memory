@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 The ViaDuck Project
+ * Copyright (C) 2015-2025 The ViaDuck Project
  *
  * This file is part of SecureMemory.
  *
@@ -49,7 +49,7 @@ public:
      * Move constructor. Other SecureUniquePtr will be reset.
      * @param other
      */
-    SecureUniquePtr(SecureUniquePtr &&other) noexcept : mPtr(std::move(other.ptr)) { }
+    SecureUniquePtr(SecureUniquePtr &&other) noexcept : mPtr(std::move(other.mPtr)) { }
 
     /**
      * Securely overwrite memory used by std::unique_ptr<T>
@@ -79,7 +79,7 @@ public:
      * @param other
      */
     SecureUniquePtr<T> &operator=(SecureUniquePtr<T> &&other) noexcept {
-        mPtr = std::move(other.ptr);
+        mPtr = std::move(other.mPtr);
 
         return *this;
     }
